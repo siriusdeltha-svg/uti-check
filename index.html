@@ -1,69 +1,191 @@
-<!doctype html><html lang="pt-BR"><head>
+<!doctype html>
+<html lang="pt-BR">
+<head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#10243a"><meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="UTI Check">
+<meta name="theme-color" content="#10243a"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="UTI Check">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png">
-<title>UTI Check</title>
+<title>UTI Check Adulto</title>
 <style>
-:root{--bg:#f2f5f8;--card:#fff;--ink:#172536;--muted:#64748b;--line:#dce4ec;--blue:#1769aa;--navy:#10243a;--green:#16845b}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:30px}
-header{background:var(--navy);color:white;padding:calc(15px + env(safe-area-inset-top)) 16px 15px;position:sticky;top:0;z-index:5}h1{font-size:21px;margin:0}header small{color:#c6d5e3}.wrap{max-width:850px;margin:auto;padding:12px}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.btn{border:0;border-radius:10px;padding:12px 14px;background:var(--blue);color:#fff;font-weight:650;font-size:14px}.btn.secondary{background:#e3edf6;color:#17466d}.btn.danger{background:#fae8e7;color:#a1261d}.btn.green{background:var(--green)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;margin:11px 0;box-shadow:0 2px 8px #10243a0a}h2{font-size:17px;margin:0 0 12px}h3{font-size:15px;margin:0 0 9px}.muted{color:var(--muted);font-size:13px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field{display:flex;flex-direction:column;gap:5px}.full{grid-column:1/-1}label{font-size:12px;font-weight:700;color:#425466}input,textarea{width:100%;border:1px solid #cbd5df;border-radius:9px;padding:11px;background:#fff;color:var(--ink);font:inherit}textarea{min-height:75px}.check{display:flex;gap:9px;align-items:flex-start;padding:9px;border:1px solid var(--line);border-radius:9px;background:#fbfdff;font-size:14px}.check input{width:20px;height:20px;margin:0;accent-color:var(--green);flex-shrink:0}.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.pill{font-size:11px;border-radius:99px;background:#e8f1f8;color:#245477;padding:4px 8px}.hidden{display:none!important}.tabs{display:flex;gap:7px;overflow:auto;padding:3px 0 9px}.tab{white-space:nowrap;border:1px solid var(--line);border-radius:99px;padding:9px 12px;background:#fff;color:#405268}.tab.active{background:var(--navy);color:#fff}.patient{display:flex;justify-content:space-between;align-items:center;gap:8px}.patient strong{font-size:15px}.meta{font-size:12px;color:var(--muted);margin-top:3px}.progress{height:8px;background:#e6edf3;border-radius:99px;overflow:hidden;margin:8px 0}.progress div{height:100%;background:var(--green);width:0}footer{text-align:center;color:var(--muted);font-size:11px;padding:16px}
-@media(max-width:560px){.grid,.checks{grid-template-columns:1fr}.wrap{padding:9px}.card{padding:11px}}
-</style></head><body>
-<header><h1>UTI Check</h1><small>Visita multiprofissional • Plantão do residente</small></header>
+:root{--bg:#f2f5f8;--card:#fff;--ink:#172536;--muted:#64748b;--line:#dce4ec;--blue:#1769aa;--navy:#10243a;--green:#16845b;--amber:#a15c00;--red:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:calc(28px + env(safe-area-inset-bottom))}
+header{background:var(--navy);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 15px 13px;position:sticky;top:0;z-index:5}header h1{font-size:21px;margin:0}header small{color:#c6d5e3}.wrap{max-width:920px;margin:auto;padding:11px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;margin:10px 0;box-shadow:0 2px 8px #10243a0a}
+h2{font-size:17px;margin:0 0 11px}h3{font-size:14px;margin:0 0 8px}.muted{color:var(--muted);font-size:12px}.toolbar{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0}.btn{border:0;border-radius:10px;padding:11px 13px;background:var(--blue);color:white;font-weight:650;font-size:14px}.btn.secondary{background:#e3edf6;color:#17466d}.btn.green{background:var(--green)}.btn.danger{background:#fae8e7;color:#a1261d}.btn:disabled{opacity:.45}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field{display:flex;flex-direction:column;gap:5px;min-width:0}.full{grid-column:1/-1}label{font-size:12px;font-weight:700;color:#425466}input,select,textarea{width:100%;min-width:0;border:1px solid #cbd5df;border-radius:9px;padding:10px;background:#fff;color:var(--ink);font:inherit}textarea{min-height:76px;resize:vertical}select{min-height:40px}.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.check{display:flex;gap:8px;align-items:flex-start;padding:8px;border:1px solid var(--line);border-radius:9px;background:#fbfdff;font-size:13px}.check input{width:19px;height:19px;margin:0;flex-shrink:0;accent-color:var(--green)}
+.tabs{display:flex;gap:6px;overflow:auto;padding:3px 0 9px;scrollbar-width:thin}.tab{white-space:nowrap;border:1px solid var(--line);border-radius:99px;padding:8px 11px;background:#fff;color:#405268;font-size:12px}.tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}.tab.done:after{content:" ✓";color:#16845b}.tab.active.done:after{color:#8ce0b7}
+.pill{font-size:11px;border-radius:99px;background:#e8f1f8;color:#245477;padding:4px 8px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:8px}.progress{height:7px;background:#e6edf3;border-radius:99px;overflow:hidden;margin:8px 0}.progress>div{height:100%;background:var(--green);width:0}.navrow{display:flex;justify-content:space-between;gap:8px;margin:10px 0}.hidden{display:none!important}.warning{background:#fff6e8;border:1px solid #f2d39d;border-radius:10px;padding:10px;color:#744600;font-size:12px}.patient{display:flex;justify-content:space-between;align-items:center;gap:8px}.patient strong{font-size:14px}.meta{font-size:12px;color:var(--muted);margin-top:3px}.output{white-space:pre-wrap;overflow-wrap:anywhere;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:13px;line-height:1.45;max-height:55vh;overflow:auto}footer{text-align:center;color:var(--muted);font-size:11px;padding:16px}
+@media(max-width:560px){.grid,.checks{grid-template-columns:1fr}.wrap{padding:8px}.card{padding:11px}.btn{padding:11px 12px}}
+</style></head>
+<body>
+<header><h1>UTI Check</h1><small>Visita guiada • UTI adulto • Evolução médica</small></header>
 <main class="wrap">
-<section id="home"><div class="toolbar"><button class="btn" onclick="newPatient()">＋ Novo leito</button><button class="btn secondary" onclick="backup()">Exportar backup</button><button class="btn secondary" onclick="document.getElementById('restore').click()">Importar backup</button><input id="restore" type="file" accept="application/json" class="hidden" onchange="restoreData(event)"></div>
-<div class="card"><h2>Pacientes do plantão <span class="pill" id="count">0 leitos</span></h2><div id="patients"></div></div>
-<div class="card"><h3>Sequência sugerida da visita</h3><p class="muted">Identificação e metas → ABCDE → sistemas → dispositivos → prevenção → exames → prescrição → pendências e plano.</p></div></section>
-<section id="editor" class="hidden"><div class="toolbar"><button class="btn secondary" onclick="home()">← Leitos</button><button class="btn green" onclick="exportSummary()">Exportar resumo</button><button class="btn danger" onclick="delPatient()">Excluir</button></div>
-<div class="card"><h2 id="title">Paciente</h2><div class="progress"><div id="bar"></div></div><span class="pill" id="pct">0% concluído</span>
-<div class="grid" style="margin-top:12px">
-<div class="field"><label>Leito</label><input id="bed" oninput="save()"></div><div class="field"><label>Identificação / iniciais</label><input id="name" oninput="save()" placeholder="Evite nome completo"></div>
-<div class="field"><label>Idade</label><input id="age" type="number" oninput="save()"></div><div class="field"><label>Dia de UTI</label><input id="day" type="number" oninput="save()"></div>
-<div class="field full"><label>Diagnóstico principal</label><input id="dx" oninput="save()"></div><div class="field full"><label>Comorbidades relevantes</label><input id="comorb" oninput="save()"></div>
-<div class="field"><label>Peso (kg)</label><input id="weight" type="number" step=".1" oninput="save()"></div><div class="field"><label>Altura (cm)</label><input id="height" type="number" oninput="save()"></div>
-<div class="field full"><label>Alergias / reações</label><input id="allergy" oninput="save()"></div><div class="field full"><label>Objetivos terapêuticos / limites de suporte</label><textarea id="goals" oninput="save()"></textarea></div></div></div>
-<div class="tabs" id="tabs"></div><div id="section"></div>
-<div class="card"><h2>Plano e passagem de plantão</h2>
-<div class="field"><label>Problemas ativos / prioridades</label><textarea id="problems" oninput="save()"></textarea></div>
-<div class="field"><label>Condutas e decisões</label><textarea id="plan" oninput="save()"></textarea></div>
-<div class="field"><label>Exames a solicitar / conferir</label><textarea id="tests" oninput="save()"></textarea></div>
-<div class="field"><label>Prescrição: ajustes e itens a revisar</label><textarea id="rx" oninput="save()"></textarea></div>
-<div class="field"><label>Pendências para o próximo turno</label><textarea id="pending" oninput="save()"></textarea></div>
-<div class="field"><label>Critérios de melhora, piora ou alta da UTI</label><textarea id="disposition" oninput="save()"></textarea></div></div>
-<div class="toolbar"><button class="btn green" onclick="exportSummary()">Gerar resumo da visita</button><button class="btn secondary" onclick="home()">Salvar e voltar</button></div></section>
-<footer>Armazenamento local neste iPhone. Não substitui prontuário, prescrição institucional, protocolos ou validação pelo médico responsável. Evite dados identificáveis de pacientes.</footer></main>
+<section id="home">
+ <div class="toolbar"><button class="btn" onclick="newPatient()">＋ Novo paciente / leito</button><button class="btn secondary" onclick="backup()">Exportar backup</button><button class="btn secondary" onclick="$('restore').click()">Importar backup</button><input id="restore" type="file" accept="application/json" class="hidden" onchange="restoreData(event)"></div>
+ <div class="warning">Protótipo de apoio à documentação. Não substitui avaliação médica, prontuário, prescrição institucional, protocolos locais nem supervisão. Use somente dados fictícios durante os testes. Não armazene identificadores de pacientes nesta versão.</div>
+ <div class="card"><div class="section-head"><h2>Pacientes cadastrados</h2><span class="pill" id="count">0</span></div><div id="patients"></div></div>
+ <div class="card"><h3>Como funciona</h3><p class="muted">Preencha a visita por etapas, navegue pelas abas livremente e gere uma evolução estruturada ao final. Os dados ficam no armazenamento local deste navegador/aparelho.</p></div>
+</section>
+<section id="editor" class="hidden">
+ <div class="toolbar"><button class="btn secondary" onclick="home()">← Pacientes</button><button class="btn green" onclick="showEvolution()">Gerar evolução</button><button class="btn danger" onclick="deletePatient()">Excluir</button></div>
+ <div class="card">
+  <div class="section-head"><h2 id="patientTitle">Paciente</h2><span class="pill" id="pct">0% preenchido</span></div><div class="progress"><div id="bar"></div></div>
+  <div class="grid">
+   <div class="field"><label>Leito *</label><input id="bed" data-f="bed" oninput="save()"></div>
+   <div class="field"><label>Identificação não nominal (código/iniciais)</label><input id="identifier" data-f="identifier" oninput="save()" placeholder="Não usar nome completo"></div>
+   <div class="field"><label>Idade (anos)</label><input id="age" data-f="age" type="number" oninput="save()"></div>
+   <div class="field"><label>Sexo</label><select id="sex" data-f="sex" onchange="save()"><option value="">Selecionar</option><option>Feminino</option><option>Masculino</option><option>Outro / não informado</option></select></div>
+   <div class="field"><label>Peso atual (kg)</label><input id="weight" data-f="weight" type="number" step=".1" oninput="save()"></div>
+   <div class="field"><label>Altura (cm)</label><input id="height" data-f="height" type="number" step=".1" oninput="save()"></div>
+   <div class="field"><label>Dia de internação hospitalar</label><input id="hospitalDay" data-f="hospitalDay" type="number" oninput="save()"></div>
+   <div class="field"><label>Dia de UTI</label><input id="icuDay" data-f="icuDay" type="number" oninput="save()"></div>
+   <div class="field full"><label>Diagnóstico principal / motivo da UTI</label><input id="diagnosis" data-f="diagnosis" oninput="save()"></div>
+   <div class="field full"><label>Diagnósticos secundários / comorbidades</label><textarea id="comorbidities" data-f="comorbidities" oninput="save()"></textarea></div>
+   <div class="field full"><label>Alergias e reação</label><input id="allergies" data-f="allergies" oninput="save()"></div>
+   <div class="field full"><label>Medicações habituais / conciliação</label><textarea id="homeMeds" data-f="homeMeds" oninput="save()"></textarea></div>
+   <div class="field full"><label>Objetivos terapêuticos / limites de suporte</label><textarea id="goalsOfCare" data-f="goalsOfCare" oninput="save()"></textarea></div>
+  </div>
+ </div>
+ <div class="tabs" id="tabs"></div>
+ <div id="stage"></div>
+ <div class="navrow"><button class="btn secondary" id="prev" onclick="move(-1)">← Etapa anterior</button><button class="btn" id="next" onclick="move(1)">Próxima etapa →</button></div>
+ <div class="toolbar"><button class="btn green" onclick="showEvolution()">Concluir visita e gerar evolução</button><button class="btn secondary" onclick="home()">Salvar e sair</button></div>
+</section>
+<section id="evolution" class="hidden">
+ <div class="toolbar"><button class="btn secondary" onclick="backEditor()">← Voltar à visita</button><button class="btn green" onclick="copyEvolution()">Copiar evolução</button><button class="btn secondary" onclick="downloadEvolution()">Baixar .txt</button></div>
+ <div class="card"><div class="section-head"><h2>Evolução médica — CTI adulto</h2><span class="pill">Rascunho</span></div><div class="warning">Revise todos os campos, corrija omissões e valide os dados no prontuário antes de assinar. O texto não representa decisão clínica automatizada.</div><div id="evolutionText" class="output" style="margin-top:10px"></div></div>
+</section>
+<footer>UTI Check • Protótipo para apoio à visita médica. Armazenamento local, sem sincronização. Evite dados identificáveis. Validação clínica e de segurança necessária antes de uso assistencial.</footer>
+</main>
 <script>
-const groups=[
-['ABCDE / avaliação inicial',['Identificação, motivo da UTI e eventos das últimas 24h revisados','A — Via aérea pérvia e proteção avaliadas','Tubo: posição, fixação, cuff e necessidade de manutenção avaliados','B — Trabalho respiratório, ausculta e oxigenação avaliados','C — Perfusão, pulsos, TEC, temperatura e hemodinâmica avaliados','D — Glasgow/RASS, pupilas, delirium e exame neurológico','E — Pele, feridas, temperatura, edema e dispositivos inspecionados','Metas do dia definidas e comunicadas']],
-['Respiratório / ventilação',['Suporte atual: ar ambiente / O₂ / VNI / VM registrado','SpO₂ e meta individualizada definidas','Parâmetros ventilatórios e alarmes revisados','Volume corrente por peso predito, pressões e driving pressure avaliados quando aplicável','Gasometria / PaO₂-FiO₂ avaliadas se indicadas','Sincronia, esforço, secreções e ausculta avaliados','Cabeceira e prevenção de PAV revisadas','Desmame, TRE e extubação avaliados','Fisioterapia / aspiração discutidas']],
-['Cardiovascular / hemodinâmica',['PA/PAM e tendência revisadas','Meta de PAM individualizada definida','Perfusão, lactato e enchimento capilar avaliados','Vasopressores/inotrópicos: droga, dose, acesso e tendência conferidos','Ritmo / ECG / telemetria revisados','Estado volêmico, fluidos e balanço ponderados','Ecocardiografia / POCUS considerada se indicada','Redução de vasoativos avaliada']],
-['Neurológico / sedação / dor',['Glasgow e/ou RASS documentado','Dor avaliada com escala apropriada','Sedação/analgesia: indicação, alvo e doses revisados','Despertar diário / redução de sedação avaliado','Delirium avaliado quando possível','Sono e medidas não farmacológicas revisados','Convulsões, déficit focal e neuroimagem avaliados']],
-['Renal / metabólico / balanço',['Diurese horária e acumulada revisadas','Balanço hídrico de 24h e acumulado conferidos','Creatinina, ureia e eletrólitos revisados','Na, K, Mg, P, Ca e equilíbrio ácido-base avaliados','Reposições eletrolíticas reavaliadas quando indicadas','Ajuste renal de medicamentos avaliado','Indicação de terapia renal substitutiva discutida','Glicemia e metas revisadas']],
-['Nutrição / gastrointestinal',['Via e meta nutricional definidas','Tolerância, aporte e interrupções da dieta revisados','Risco nutricional / nutrição considerados','Evacuação, constipação, diarreia e distensão avaliadas','Profilaxia de úlcera de estresse: indicação revisada','Função hepática avaliada','Sonda: indicação, posição e cuidados conferidos']],
-['Infeccioso / antimicrobianos',['Temperatura e curva térmica revisadas','Foco infeccioso e controle de foco avaliados','Culturas e resultados pendentes conferidos','Antimicrobianos: indicação, espectro, dose e ajuste renal revisados','Dia de tratamento e duração/descalonamento definidos','Novas culturas/exames avaliados se indicados','Dispositivos como possível foco revisados','Precauções / isolamento adequados']],
-['Hematologia / trombose',['Hemograma e tendência de Hb/plaquetas revisados','Sangramento ativo / risco hemorrágico avaliado','Profilaxia de TEV e contraindicações revisadas','Anticoagulação plena: indicação, dose e monitorização revisadas','Coagulograma / fibrinogênio avaliados se indicados','Necessidade transfusional avaliada']],
-['Dispositivos / pele / mobilidade',['CVC: indicação, sítio e curativo revisados','Acesso arterial: indicação e sítio revisados','Sonda vesical: indicação diária e retirada considerada','Sondas, drenos e cateteres: débito e necessidade revisados','Curativos e lesões por pressão avaliados','Mudança de decúbito programada','Mobilização precoce / fisioterapia discutidas','Dispositivos desnecessários retirados ou com plano']],
-['Prescrição / segurança',['Conciliação medicamentosa e alergias conferidas','Doses, vias, intervalos e diluições revisados','Ajustes renal/hepático e por peso avaliados','Interações, duplicidades e medicamentos de alto risco revisados','Fluidos, eletrólitos e velocidade de infusão conferidos','Dieta, glicemia e insulina revisadas','Profilaxias reavaliadas','Antimicrobianos e culturas reconciliados','Metas e parâmetros de monitorização prescritos','Prescrição checada conforme protocolo institucional']],
-['Exames / procedimentos / comunicação',['Laboratoriais do dia revisados e tendências comparadas','Gasometria / lactato avaliados se indicados','Imagem pendente revisada','ECG / eco / POCUS considerados quando indicados','Procedimentos, riscos e consentimentos avaliados','Resultados críticos comunicados e conduta registrada','Família/responsável atualizado conforme rotina e autorização','Plano alinhado com equipe multiprofissional']]
+const stages=[
+{id:'history',name:'História',fields:[
+{type:'textarea',id:'hpi',label:'História da doença atual / resumo da internação',full:true,placeholder:'Início, evolução, tratamentos prévios, motivo da admissão no CTI...'},
+{type:'textarea',id:'last24',label:'Eventos e intercorrências nas últimas 24 horas',full:true},
+{type:'textarea',id:'priorCourse',label:'Procedimentos, cirurgias, dispositivos e tratamentos prévios',full:true},
+{type:'choice',id:'source',label:'Origem da internação',options:['Pronto-socorro','Enfermaria','Centro cirúrgico / RPA','Transferência de outro hospital','Outro']},
+{type:'choice',id:'baseline',label:'Funcionalidade prévia',options:['Independente','Dependência parcial','Dependência total','Não conhecido']},
+{type:'textarea',id:'historyOther',label:'Outras informações relevantes',full:true}
+]},
+{id:'exam',name:'Exame físico',fields:[
+{type:'choice',id:'general',label:'Estado geral',options:['Bom','Regular','Grave','Muito grave']},
+{type:'choice',id:'consciousness',label:'Consciência',options:['Alerta','Sonolento','Confuso','Agitado','Torporoso','Comatoso','Sedado']},
+{type:'choice',id:'neuroExam',label:'Neurológico',options:['Sem déficit focal aparente','Déficit focal','Pupilas isocóricas e fotorreagentes','Alteração pupilar','Exame limitado / não avaliável']},
+{type:'text',id:'gcs',label:'Glasgow (E/V/M ou total)'},
+{type:'text',id:'rass',label:'RASS'},
+{type:'text',id:'pain',label:'Dor (escala e valor)'},
+{type:'choice',id:'respExam',label:'Inspeção / esforço respiratório',options:['Confortável','Taquipneico','Uso de musculatura acessória','Bradipneico','Em ventilação mecânica','Outro']},
+{type:'choice',id:'lungAusc',label:'Ausculta pulmonar',options:['MV presente bilateral, sem ruídos adventícios','Crepitações','Sibilos','Roncos','MV reduzido','Assimetria','Não avaliado']},
+{type:'choice',id:'cardioExam',label:'Cardiovascular',options:['Ritmo regular, bulhas normofonéticas','Arritmia','Bulhas hipofonéticas','Sopro','Outro']},
+{type:'choice',id:'perfusion',label:'Perfusão periférica',options:['Adequada','TEC prolongado','Extremidades frias','Moteamento','Edema periférico','Outro']},
+{type:'choice',id:'abdomen',label:'Abdome',options:['Flácido, indolor','Distendido','Doloroso','Defesa / irritação peritoneal','RHA diminuídos','RHA aumentados','Outro']},
+{type:'choice',id:'limbs',label:'Extremidades',options:['Sem edema','Edema','Assimetria','Sinais sugestivos de TVP','Lesões / alterações cutâneas']},
+{type:'textarea',id:'skin',label:'Pele, feridas, lesões por pressão e outros achados',full:true},
+{type:'textarea',id:'physicalOther',label:'Outros achados do exame físico',full:true}
+]},
+{id:'vitals',name:'Parâmetros',fields:[
+{type:'number',id:'bpSys',label:'PA sistólica (mmHg)'},{type:'number',id:'bpDia',label:'PA diastólica (mmHg)'},{type:'number',id:'map',label:'PAM (mmHg)'},{type:'number',id:'hr',label:'FC (bpm)'},{type:'number',id:'rr',label:'FR (irpm)'},{type:'number',id:'temp',label:'Temperatura (°C)',step:'.1'},{type:'number',id:'spo2',label:'SpO₂ (%)'},{type:'number',id:'glucose',label:'Glicemia (mg/dL)'},
+{type:'number',id:'urineHour',label:'Diurese (mL/h)'},{type:'number',id:'urine24',label:'Diurese 24h (mL)'},{type:'number',id:'input24',label:'Entradas 24h (mL)'},{type:'number',id:'output24',label:'Saídas 24h (mL)'},{type:'number',id:'balance24',label:'Balanço 24h (mL)'},{type:'number',id:'balanceTotal',label:'Balanço acumulado (mL)'},
+{type:'textarea',id:'monitorNotes',label:'Tendências / outros parâmetros monitorizados',full:true}
+]},
+{id:'resp',name:'Respiratório',fields:[
+{type:'choice',id:'oxygenMode',label:'Suporte respiratório',options:['Ar ambiente','Cateter nasal','Máscara','Máscara com reservatório','CNAF / alto fluxo','VNI','Ventilação mecânica invasiva','Traqueostomia / suporte ventilatório']},
+{type:'number',id:'oxygenFlow',label:'Fluxo O₂ (L/min)'},{type:'text',id:'fio2',label:'FiO₂ (%)'},
+{type:'number',id:'ventVt',label:'Volume corrente (mL)'},{type:'number',id:'ventPeep',label:'PEEP (cmH₂O)'},{type:'number',id:'ventPip',label:'Pressão de pico (cmH₂O)'},{type:'number',id:'ventPplat',label:'Pressão de platô (cmH₂O)'},{type:'number',id:'ventRR',label:'FR programada (irpm)'},{type:'number',id:'ventPS',label:'Pressão de suporte (cmH₂O)'},
+{type:'choice',id:'ventMode',label:'Modo ventilatório',options:['VCV','PCV','PSV','PRVC','Outro','Não se aplica']},
+{type:'textarea',id:'gasometry',label:'Gasometria (pH / PaCO₂ / PaO₂ / HCO₃ / BE / lactato)',full:true},
+{type:'textarea',id:'respAssessment',label:'Avaliação respiratória / desmame / TRE',full:true}
+]},
+{id:'hemo',name:'Hemodinâmica',fields:[
+{type:'choice',id:'vasoactive',label:'Drogas vasoativas',options:['Não utiliza','Noradrenalina','Noradrenalina + vasopressina','Adrenalina','Dobutamina','Outras combinações']},
+{type:'textarea',id:'vasoDose',label:'Drogas, doses, unidades e tendência',full:true},
+{type:'choice',id:'rhythm',label:'Ritmo / monitorização',options:['Sinusal','Fibrilação atrial','Flutter','Taquiarritmia','Bradiarritmia','Marca-passo','Outro']},
+{type:'textarea',id:'hemoAssessment',label:'Perfusão, lactato, responsividade a fluidos, POCUS/eco e avaliação hemodinâmica',full:true}
+]},
+{id:'renal',name:'Renal/metabólico',fields:[
+{type:'number',id:'creatinine',label:'Creatinina (mg/dL)',step:'.01'},{type:'number',id:'urea',label:'Ureia (mg/dL)'},{type:'number',id:'sodium',label:'Sódio (mEq/L)'},{type:'number',id:'potassium',label:'Potássio (mEq/L)',step:'.1'},{type:'number',id:'magnesium',label:'Magnésio (mg/dL)',step:'.1'},{type:'number',id:'phosphorus',label:'Fósforo (mg/dL)',step:'.1'},{type:'number',id:'calcium',label:'Cálcio (mg/dL)',step:'.1'},{type:'number',id:'lactate',label:'Lactato (mmol/L)',step:'.1'},
+{type:'choice',id:'rtt',label:'Terapia renal substitutiva',options:['Não','Hemodiálise intermitente','Terapia contínua','SLED','Em avaliação']},
+{type:'textarea',id:'renalAssessment',label:'Função renal, distúrbios, reposições e plano',full:true}
+]},
+{id:'infect',name:'Infecção',fields:[
+{type:'choice',id:'infectionStatus',label:'Situação infecciosa',options:['Sem suspeita atual','Suspeita de infecção','Infecção confirmada','Sepse','Choque séptico','Em investigação']},
+{type:'text',id:'infectionFocus',label:'Foco suspeito/confirmado'},{type:'text',id:'fever',label:'Curva térmica / pico febril'},
+{type:'textarea',id:'cultures',label:'Culturas: coleta, data e resultados',full:true},
+{type:'textarea',id:'antibiotics',label:'Antimicrobianos: fármaco, dose, início, dia de tratamento e plano',full:true},
+{type:'textarea',id:'sourceControl',label:'Controle de foco / isolamento / avaliação infecciosa',full:true}
+]},
+{id:'labs',name:'Exames',fields:[
+{type:'textarea',id:'cbc',label:'Hemograma',full:true},{type:'textarea',id:'coag',label:'Coagulograma / hemóstase',full:true},{type:'textarea',id:'liver',label:'Função hepática',full:true},{type:'textarea',id:'otherLabs',label:'Outros exames laboratoriais e tendências',full:true},{type:'textarea',id:'imaging',label:'Imagem: RX, US, TC, RM e achados relevantes',full:true},{type:'textarea',id:'ecgEcho',label:'ECG / ecocardiograma / POCUS',full:true},{type:'textarea',id:'pendingTests',label:'Exames solicitados / pendentes e previsão de revisão',full:true}
+]},
+{id:'devices',name:'Dispositivos',fields:[
+{type:'checks',id:'deviceList',label:'Dispositivos presentes',options:['Tubo orotraqueal','Traqueostomia','CVC','Acesso arterial','Acesso periférico','Sonda vesical','Sonda enteral / nasoenteral','Dreno torácico','Dreno abdominal','Cateter de diálise','Outros']},
+{type:'textarea',id:'deviceDetails',label:'Data, sítio, indicação, cuidados e necessidade diária de cada dispositivo',full:true},
+{type:'choice',id:'mobility',label:'Mobilidade',options:['Acamado','Mobilização no leito','Sedestação','Poltrona','Deambulação assistida','Deambula independente']},
+{type:'textarea',id:'skinCare',label:'Pele, curativos, prevenção de lesão por pressão e fisioterapia',full:true}
+]},
+{id:'assessment',name:'Avaliação',fields:[
+{type:'textarea',id:'problemList',label:'Lista de problemas ativos (priorizar)',full:true,placeholder:'1. ...\\n2. ...\\n3. ...'},
+{type:'textarea',id:'systemAssessment',label:'Impressão clínica / avaliação por sistemas',full:true},
+{type:'textarea',id:'severity',label:'Gravidade, disfunções orgânicas e escores (se calculados)',full:true},
+{type:'textarea',id:'response',label:'Resposta às intervenções e comparação com visita anterior',full:true}
+]},
+{id:'goals',name:'Metas',fields:[
+{type:'textarea',id:'goalHemodynamic',label:'Meta hemodinâmica (ex.: PAM individualizada)',full:true},
+{type:'textarea',id:'goalResp',label:'Meta respiratória / oxigenação / ventilação',full:true},
+{type:'textarea',id:'goalRenal',label:'Meta renal / diurese / balanço',full:true},
+{type:'textarea',id:'goalNeuro',label:'Meta neurológica / sedação / analgesia',full:true},
+{type:'textarea',id:'goalNutrition',label:'Meta nutricional / glicêmica',full:true},
+{type:'textarea',id:'goalOther',label:'Outras metas individualizadas',full:true}
+]},
+{id:'plan',name:'Condutas',fields:[
+{type:'textarea',id:'dietPlan',label:'Dieta / nutrição / hidratação',full:true},
+{type:'textarea',id:'medPlan',label:'Prescrição e ajustes de medicamentos',full:true},
+{type:'textarea',id:'anticoagPlan',label:'Profilaxia TEV / anticoagulação / risco hemorrágico',full:true},
+{type:'textarea',id:'prophylaxis',label:'Profilaxias e medidas preventivas',full:true},
+{type:'textarea',id:'procedures',label:'Procedimentos / pareceres / interconsultas',full:true},
+{type:'textarea',id:'testsPlan',label:'Exames a solicitar e programação de reavaliação',full:true},
+{type:'textarea',id:'family',label:'Comunicação com família / objetivos de cuidado',full:true},
+{type:'textarea',id:'next24',label:'Plano para as próximas 24 horas / pendências',full:true},
+{type:'choice',id:'disposition',label:'Perspectiva de saída da UTI',options:['Sem previsão','Reavaliar possibilidade nas próximas 24–48h','Possível transferência para enfermaria','Alta da UTI indicada após avaliação da equipe','Cuidados de fim de vida / plano individualizado','Outro']}
+]}
 ];
-let db=JSON.parse(localStorage.getItem('uticheck_iphone')||'{"patients":[]}'),cur=null,active=0;
-const $=x=>document.getElementById(x), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function persist(){localStorage.setItem('uticheck_iphone',JSON.stringify(db))}
-function newPatient(){cur={id:Date.now().toString(),f:{},n:{},c:{}};db.patients.push(cur);persist();open(cur.id)}
-function home(){$('editor').classList.add('hidden');$('home').classList.remove('hidden');render()}
-function render(){ $('count').textContent=db.patients.length+' leito(s)';$('patients').innerHTML='';if(!db.patients.length){$('patients').innerHTML='<p class="muted">Nenhum paciente cadastrado. Toque em Novo leito.</p>';return}db.patients.forEach(p=>{let b=document.createElement('div');b.className='card patient';b.innerHTML=`<div><strong>Leito ${esc(p.f.bed||'—')} · ${esc(p.f.name||'Paciente')}</strong><div class="meta">${esc(p.f.dx||'Diagnóstico não informado')}</div></div><button class="btn secondary">Abrir</button>`;b.querySelector('button').onclick=()=>open(p.id);$('patients').appendChild(b)})}
-function open(id){cur=db.patients.find(p=>p.id===id);cur.f||={};cur.n||={};cur.c||={};$('home').classList.add('hidden');$('editor').classList.remove('hidden');let map={bed:'bed',name:'name',age:'age',day:'day',dx:'dx',comorb:'comorb',weight:'weight',height:'height',allergy:'allergy',goals:'goals',problems:'problems',plan:'plan',tests:'tests',rx:'rx',pending:'pending',disposition:'disposition'};Object.entries(map).forEach(([id,k])=>$(id).value=cur.f[k]??cur.n[k]??'');active=0;tabs();section();progress()}
-function save(){if(!cur)return;['bed','name','age','day','dx','comorb','weight','height','allergy','goals'].forEach(k=>cur.f[k]=$(k).value);['problems','plan','tests','rx','pending','disposition'].forEach(k=>cur.n[k]=$(k).value);$('title').textContent='Leito '+(cur.f.bed||'—');persist();progress()}
-function tabs(){$('tabs').innerHTML=groups.map((g,i)=>`<button class="tab ${active===i?'active':''}" onclick="active=${i};tabs();section()">${g[0]}</button>`).join('')}
-function section(){let g=groups[active],html=`<div class="card"><h2>${g[0]}</h2><div class="checks">`;g[1].forEach((s,i)=>{let k=active+'_'+i;html+=`<label class="check"><input type="checkbox" ${cur.c[k]?'checked':''} onchange="cur.c['${k}']=this.checked;persist();section();progress()"><span>${s}</span></label>`});html+=`</div><div class="field" style="margin-top:12px"><label>Observações desta etapa</label><textarea oninput="cur.n['obs${active}']=this.value;persist()" placeholder="Achados, metas e justificativas...">${esc(cur.n['obs'+active]||'')}</textarea></div></div>`;$('section').innerHTML=html}
-function progress(){let total=groups.reduce((a,g)=>a+g[1].length,0),done=Object.values(cur.c).filter(Boolean).length,p=Math.round(done/total*100);$('pct').textContent=p+'% concluído';$('bar').style.width=p+'%'}
-function delPatient(){if(confirm('Excluir este paciente e os dados locais?')){db.patients=db.patients.filter(p=>p.id!==cur.id);persist();home()}}
-function summary(){save();let f=cur.f,n=cur.n,L=['UTI CHECK — VISITA / PLANTÃO',`Leito ${f.bed||'—'} | Identificação: ${f.name||'—'} | Idade: ${f.age||'—'}`,`Dia UTI: ${f.day||'—'} | Peso: ${f.weight||'—'} kg | Altura: ${f.height||'—'} cm`,`Diagnóstico: ${f.dx||'—'}`,`Comorbidades: ${f.comorb||'—'}`,`Alergias: ${f.allergy||'—'}`,`Objetivos/limites: ${f.goals||'—'}`,''];groups.forEach((g,j)=>{L.push(g[0].toUpperCase());g[1].forEach((s,i)=>L.push(`${cur.c[j+'_'+i]?'[x]':'[ ]'} ${s}`));if(n['obs'+j])L.push('Observações: '+n['obs'+j]);L.push('')});[['Problemas',n.problems],['Condutas',n.plan],['Exames',n.tests],['Prescrição',n.rx],['Pendências',n.pending],['Critérios de evolução/alta',n.disposition]].forEach(x=>L.push(x[0]+':',x[1]||'—',''));L.push('Conferir e validar no prontuário e protocolos institucionais.');return L.join('\\n')}
-function exportSummary(){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([summary()],{type:'text/plain;charset=utf-8'}));a.href=u;a.download='UTI-Check-leito-'+(cur.f.bed||'').replace(/[^a-z0-9_-]/gi,'')+'.txt';a.click();URL.revokeObjectURL(u)}
-function backup(){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify(db,null,2)],{type:'application/json'}));a.href=u;a.download='backup-uti-check.json';a.click();URL.revokeObjectURL(u)}
-function restoreData(e){let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!Array.isArray(x.patients))throw 0;if(confirm('Substituir os dados atuais pelo backup?')){db=x;persist();render()}}catch(_){alert('Backup inválido')}};r.readAsText(e.target.files[0]);e.target.value=''}
-if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));render();
+let db=JSON.parse(localStorage.getItem('uticheck_adulto_v2')||'{"patients":[]}'),cur=null,active=0;
+const $=id=>document.getElementById(id);
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function persist(){localStorage.setItem('uticheck_adulto_v2',JSON.stringify(db))}
+function newPatient(){cur={id:Date.now().toString(),f:{},answers:{}};db.patients.push(cur);persist();openPatient(cur.id)}
+function renderHome(){$('count').textContent=db.patients.length+' leito(s)';$('patients').innerHTML='';if(!db.patients.length){$('patients').innerHTML='<p class="muted">Nenhum paciente cadastrado. Toque em “Novo paciente / leito”.</p>';return}db.patients.forEach(p=>{let el=document.createElement('div');el.className='card patient';el.innerHTML=`<div><strong>Leito ${esc(p.f.bed||'—')} · ${esc(p.f.identifier||'Paciente')}</strong><div class="meta">${esc(p.f.diagnosis||'Diagnóstico não informado')}</div></div><button class="btn secondary">Abrir visita</button>`;el.querySelector('button').onclick=()=>openPatient(p.id);$('patients').appendChild(el)})}
+function home(){$('editor').classList.add('hidden');$('evolution').classList.add('hidden');$('home').classList.remove('hidden');renderHome()}
+function openPatient(id){cur=db.patients.find(p=>p.id===id);cur.f||={};cur.answers||={};$('home').classList.add('hidden');$('evolution').classList.add('hidden');$('editor').classList.remove('hidden');document.querySelectorAll('[data-f]').forEach(el=>el.value=cur.f[el.dataset.f]??'');active=0;renderTabs();renderStage();updateProgress();$('patientTitle').textContent='Leito '+(cur.f.bed||'—')}
+function save(){if(!cur)return;document.querySelectorAll('[data-f]').forEach(el=>cur.f[el.dataset.f]=el.value);document.querySelectorAll('[data-a]').forEach(el=>{if(el.type==='checkbox'){let arr=cur.answers[el.dataset.a]||[];if(el.checked&&!arr.includes(el.value))arr.push(el.value);if(!el.checked)arr=arr.filter(x=>x!==el.value);cur.answers[el.dataset.a]=arr}else cur.answers[el.dataset.a]=el.value});$('patientTitle').textContent='Leito '+(cur.f.bed||'—');persist();updateProgress()}
+function renderTabs(){$('tabs').innerHTML=stages.map((s,i)=>`<button class="tab ${i===active?'active':''} ${stageHasData(s)?'done':''}" onclick="active=${i};renderTabs();renderStage()">${s.name}</button>`).join('')}
+function stageHasData(s){return s.fields.some(f=>{let v=cur.answers[f.id];return Array.isArray(v)?v.length>0:!!v})}
+function renderStage(){let s=stages[active],html=`<div class="card"><div class="section-head"><h2>${s.name}</h2><span class="pill">Etapa ${active+1} de ${stages.length}</span></div><p class="muted">Preencha o que estiver disponível. Você pode pular esta etapa e retornar depois.</p><div class="grid">`;
+s.fields.forEach(f=>{let val=cur.answers[f.id]??(f.type==='checks'?[]:'');html+=`<div class="field ${f.full?'full':''}"><label>${f.label}</label>`;if(f.type==='textarea')html+=`<textarea data-a="${f.id}" oninput="save()" placeholder="${f.placeholder||''}">${esc(val)}</textarea>`;else if(f.type==='choice')html+=`<select data-a="${f.id}" onchange="save()"><option value="">Selecionar</option>${f.options.map(o=>`<option ${val===o?'selected':''}>${o}</option>`).join('')}</select>`;else if(f.type==='checks')html+=`<div class="checks">${f.options.map(o=>`<label class="check"><input type="checkbox" data-a="${f.id}" value="${o}" ${Array.isArray(val)&&val.includes(o)?'checked':''} onchange="save()"><span>${o}</span></label>`).join('')}</div>`;else html+=`<input data-a="${f.id}" type="${f.type==='number'?'number':'text'}" ${f.step?'step="'+f.step+'"':''} value="${esc(val)}" oninput="save()">`;html+='</div>'});html+='</div></div>';$('stage').innerHTML=html;$('prev').disabled=active===0;$('next').textContent=active===stages.length-1?'Ver evolução →':'Próxima etapa →';}
+function move(d){save();if(active===stages.length-1&&d>0){showEvolution();return}active=Math.max(0,Math.min(stages.length-1,active+d));renderTabs();renderStage();window.scrollTo({top:0,behavior:'smooth'})}
+function updateProgress(){if(!cur)return;let all=stages.flatMap(s=>s.fields),filled=all.filter(f=>{let v=cur.answers[f.id];return Array.isArray(v)?v.length>0:!!v}).length;let pct=Math.round(filled/all.length*100);$('pct').textContent=pct+'% dos campos preenchidos';$('bar').style.width=pct+'%'}
+function val(id){return cur.answers[id]??''}
+function fieldLine(label,id){let v=val(id);return v?`${label}: ${Array.isArray(v)?v.join(', '):v}`:''}
+function buildEvolution(){save();let f=cur.f,L=[];L.push('EVOLUÇÃO MÉDICA — TERAPIA INTENSIVA ADULTO');L.push(`Data/hora: ${new Date().toLocaleString('pt-BR')}`);L.push(`Leito: ${f.bed||'Não informado'} | Identificação: ${f.identifier||'Não informada'} | Idade: ${f.age||'—'} | Sexo: ${f.sex||'—'}`);L.push(`DIH: ${f.hospitalDay||'—'} | DI-UTI: ${f.icuDay||'—'} | Peso: ${f.weight||'—'} kg | Altura: ${f.height||'—'} cm`);L.push(`Diagnóstico principal: ${f.diagnosis||'Não informado'}`);if(f.comorbidities)L.push(`Comorbidades/diagnósticos secundários: ${f.comorbidities}`);if(f.allergies)L.push(`Alergias: ${f.allergies}`);if(f.homeMeds)L.push(`Medicações habituais: ${f.homeMeds}`);if(f.goalsOfCare)L.push(`Objetivos/limites de suporte: ${f.goalsOfCare}`);
+L.push('\\nHISTÓRIA E EVOLUÇÃO RECENTE');[['História da doença atual', 'hpi'],['Eventos últimas 24h','last24'],['Procedimentos/tratamentos prévios','priorCourse'],['Origem','source'],['Funcionalidade prévia','baseline']].forEach(([a,b])=>{let x=fieldLine(a,b);if(x)L.push(x)});
+L.push('\\nEXAME FÍSICO');[['Estado geral','general'],['Consciência','consciousness'],['Neurológico','neuroExam'],['Glasgow','gcs'],['RASS','rass'],['Dor','pain'],['Respiratório','respExam'],['Ausculta pulmonar','lungAusc'],['Cardiovascular','cardioExam'],['Perfusão','perfusion'],['Abdome','abdomen'],['Extremidades','limbs'],['Pele/feridas','skin'],['Outros achados','physicalOther']].forEach(([a,b])=>{let x=fieldLine(a,b);if(x)L.push(x)});
+L.push('\\nPARÂMETROS E BALANÇO');[['PA sistólica','bpSys'],['PA diastólica','bpDia'],['PAM','map'],['FC','hr'],['FR','rr'],['Temperatura','temp'],['SpO₂','spo2'],['Glicemia','glucose'],['Diurese mL/h','urineHour'],['Diurese 24h','urine24'],['Entradas 24h','input24'],['Saídas 24h','output24'],['Balanço 24h','balance24'],['Balanço acumulado','balanceTotal'],['Tendências','monitorNotes']].forEach(([a,b])=>{let x=fieldLine(a,b);if(x)L.push(x)});
+L.push('\\nRESPIRATÓRIO / VENTILAÇÃO');[['Suporte','oxygenMode'],['Fluxo O₂','oxygenFlow'],['FiO₂','fio2'],['Modo ventilatório','ventMode'],['Volume corrente','ventVt'],['PEEP','ventPeep'],['Pressão de pico','ventPip'],['Pressão de platô','ventPplat'],['FR programada','ventRR'],['Pressão de suporte','ventPS'],['Gasometria','gasometry'],['Avaliação respiratória','respAssessment']].forEach(([a,b])=>{let x=fieldLine(a,b);if(x)L.push(x)});
+L.push('\\nHEMODINÂMICA');[['Drogas vasoativas','vasoactive'],['Doses/tendência','vasoDose'],['Ritmo','rhythm'],['Avaliação hemodinâmica','hemoAssessment']].forEach(([a,b])=>{let x=fieldLine(a,b);if(x)L.push(x)});
+L.push('\\nRENAL / METABÓLICO');[['Creatinina','creatinine'],['Ureia','urea'],['Sódio','sodium'],['Potássio','potassium'],['Magnésio','magnesium'],['Fósforo','phosphorus'],['Cálcio','calcium'],['Lactato','lactate'],['TRS','rtt'],['Avaliação renal','renalAssessment']].forEach(([a,b])=>{let x=fieldLine(a,b);if(x)L.push(x)});
+L.push('\\nINFECCIOSO');[['Situação','infectionStatus'],['Foco','infectionFocus'],['Curva térmica','fever'],['Culturas','cultures'],['Antimicrobianos','antibiotics'],['Controle de foco','sourceControl']].forEach(([a,b])=>{let x=fieldLine(a,b);if(x)L.push(x)});
+L.push('\\nEXAMES COMPLEMENTARES');[['Hemograma','cbc'],['Coagulação','coag'],['Função hepática','liver'],['Outros laboratórios','otherLabs'],['Imagem','imaging'],['ECG/eco/POCUS','ecgEcho'],['Exames pendentes','pendingTests']].forEach(([a,b])=>{let x=fieldLine(a,b);if(x)L.push(x)});
+L.push('\\nDISPOSITIVOS / MOBILIDADE');[['Dispositivos','deviceList'],['Detalhes dos dispositivos','deviceDetails'],['Mobilidade','mobility'],['Pele e cuidados','skinCare']].forEach(([a,b])=>{let x=fieldLine(a,b);if(x)L.push(x)});
+L.push('\\nAVALIAÇÃO / PROBLEMAS ATIVOS');[['Problemas','problemList'],['Impressão clínica','systemAssessment'],['Gravidade/escores','severity'],['Resposta ao tratamento','response']].forEach(([a,b])=>{let x=fieldLine(a,b);if(x)L.push(x)});
+L.push('\\nMETAS TERAPÊUTICAS');[['Hemodinâmica','goalHemodynamic'],['Respiratória','goalResp'],['Renal/balanço','goalRenal'],['Neurológica/sedação','goalNeuro'],['Nutrição/glicemia','goalNutrition'],['Outras','goalOther']].forEach(([a,b])=>{let x=fieldLine(a,b);if(x)L.push(x)});
+L.push('\\nCONDUTAS / PLANO');[['Dieta/nutrição/hidratação','dietPlan'],['Medicamentos','medPlan'],['TEV/anticoagulação','anticoagPlan'],['Profilaxias','prophylaxis'],['Procedimentos/pareceres','procedures'],['Exames/reavaliação','testsPlan'],['Família/objetivos de cuidado','family'],['Próximas 24h/pendências','next24'],['Perspectiva de saída','disposition']].forEach(([a,b])=>{let x=fieldLine(a,b);if(x)L.push(x)});
+L.push('\\nRASCUNHO GERADO PELO UTI CHECK — revisar, completar lacunas e validar no prontuário antes de assinar.');return L.join('\\n')}
+function showEvolution(){save();$('editor').classList.add('hidden');$('home').classList.add('hidden');$('evolution').classList.remove('hidden');$('evolutionText').textContent=buildEvolution();window.scrollTo(0,0)}
+function backEditor(){$('evolution').classList.add('hidden');$('editor').classList.remove('hidden')}
+async function copyEvolution(){try{await navigator.clipboard.writeText(buildEvolution());alert('Evolução copiada.')}catch(e){alert('Não foi possível copiar automaticamente. Selecione o texto e copie manualmente.')}}
+function downloadEvolution(){let blob=new Blob([buildEvolution()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download='evolucao-CTI-leito-'+(cur.f.bed||'sem-leito')+'.txt';a.click();URL.revokeObjectURL(u)}
+function deletePatient(){if(confirm('Excluir os dados locais deste paciente?')){db.patients=db.patients.filter(p=>p.id!==cur.id);persist();cur=null;home()}}
+function backup(){let b=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a'),u=URL.createObjectURL(b);a.href=u;a.download='backup-uti-check-adulto.json';a.click();URL.revokeObjectURL(u)}
+function restoreData(e){let file=e.target.files[0];if(!file)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!Array.isArray(x.patients))throw 0;if(confirm('Substituir os dados atuais pelo backup?')){db=x;persist();renderHome();alert('Backup importado.')}}catch(_){alert('Arquivo inválido.')} };r.readAsText(file);e.target.value=''}
+if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+renderHome();
 </script></body></html>
