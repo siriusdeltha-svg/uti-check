@@ -20,9 +20,13 @@ h2{font-size:17px;margin:0 0 11px}h3{font-size:14px;margin:0 0 8px}.muted{color:
 <header><h1>UTI Check</h1><small>Visita guiada • UTI adulto • Evolução médica</small></header>
 <main class="wrap">
 <section id="home">
- <div class="toolbar"><button class="btn" data-action="new-patient">＋ Cadastrar paciente em leito livre</button><button class="btn secondary" data-action="backup">Exportar backup</button><button class="btn secondary" data-action="choose-restore">Importar backup</button><input id="restore" type="file" accept="application/json" class="hidden" data-action="restore-data"></div>
+ <div class="toolbar"><button class="btn" data-action="new-patient">＋ Cadastrar paciente em leito livre</button><button class="btn secondary" data-action="open-archive">Internações encerradas</button><button class="btn secondary" data-action="backup">Exportar backup</button><button class="btn secondary" data-action="choose-restore">Importar backup</button><input id="restore" type="file" accept="application/json" class="hidden" data-action="restore-data"></div>
  <div class="warning">Protótipo de apoio à documentação. Use somente dados fictícios/anonimizados durante os testes. Não é prontuário eletrônico validado. Não insira identificadores reais de pacientes.</div><div class="card"><div class="section-head"><h2>Painel dos 10 leitos</h2><span class="pill" id="count">0</span></div><div id="patients"></div></div>
  <div class="card"><h3>Como funciona</h3><p class="muted">Preencha a visita por etapas, navegue pelas abas e gere uma evolução estruturada ao final. Durante os testes, os dados autenticados são gravados no servidor privado. Use somente dados fictícios/anonimizados até a aprovação institucional.</p></div>
+</section>
+<section id="archive" class="hidden">
+ <div class="toolbar"><button class="btn secondary" data-action="close-archive">← Voltar aos leitos</button></div>
+ <div class="card"><div class="section-head"><h2>Internações encerradas</h2><span class="pill" id="archiveCount">0 registros</span></div><p class="muted">Consulta histórica das internações com alta registrada. Os dados permanecem separados de novas internações no mesmo leito.</p><div id="archiveList"></div></div>
 </section>
 <section id="editor" class="hidden">
  <div class="toolbar"><button class="btn secondary" data-action="home">← Pacientes</button><button class="btn green" data-action="show-evolution">Gerar evolução</button><button class="btn" data-action="start-new-evolution">＋ Iniciar nova evolução</button><button class="btn danger" data-action="delete-patient">Excluir</button></div>
