@@ -21,8 +21,8 @@ h2{font-size:17px;margin:0 0 11px}h3{font-size:14px;margin:0 0 8px}.muted{color:
 <main class="wrap">
 <section id="home">
  <div class="toolbar"><button class="btn" data-action="new-patient">＋ Cadastrar paciente em leito livre</button><button class="btn secondary" data-action="backup">Exportar backup</button><button class="btn secondary" data-action="choose-restore">Importar backup</button><input id="restore" type="file" accept="application/json" class="hidden" data-action="restore-data"></div>
- <div class="warning">Protótipo de apoio à documentação. Use somente dados fictícios/anonimizados durante os testes. Não é prontuário eletrônico validado. O backup no Google Drive requer autorização e conexão ativa. Não insira identificadores reais de pacientes.</div><div class="card"><div class="section-head"><h2>Painel dos 10 leitos</h2><span class="pill" id="count">0</span></div><div id="patients"></div></div>
- <div class="card"><h3>Como funciona</h3><p class="muted">Preencha a visita por etapas, navegue pelas abas livremente e gere uma evolução estruturada ao final. Cada leito tem um paciente ativo e uma evolução por ciclo de 24 horas. Evoluções arquivadas permanecem no histórico local deste aparelho.</p></div>
+ <div class="warning">Protótipo de apoio à documentação. Use somente dados fictícios/anonimizados durante os testes. Não é prontuário eletrônico validado. Não insira identificadores reais de pacientes.</div><div class="card"><div class="section-head"><h2>Painel dos 10 leitos</h2><span class="pill" id="count">0</span></div><div id="patients"></div></div>
+ <div class="card"><h3>Como funciona</h3><p class="muted">Preencha a visita por etapas, navegue pelas abas e gere uma evolução estruturada ao final. Durante esta etapa de testes, os dados permanecem neste aparelho.</p></div>
 </section>
 <section id="editor" class="hidden">
  <div class="toolbar"><button class="btn secondary" data-action="home">← Pacientes</button><button class="btn green" data-action="show-evolution">Gerar evolução</button><button class="btn" data-action="start-new-evolution">＋ Iniciar nova evolução</button><button class="btn danger" data-action="delete-patient">Excluir</button></div>
@@ -53,6 +53,6 @@ h2{font-size:17px;margin:0 0 11px}h3{font-size:14px;margin:0 0 8px}.muted{color:
  <div class="toolbar"><button class="btn secondary" data-action="back-editor">← Voltar à visita</button><button class="btn green" data-action="archive-evolution">Arquivar evolução do dia</button><button class="btn secondary" data-action="copy-evolution">Copiar evolução</button><button class="btn secondary" data-action="download-evolution">Baixar .txt</button></div>
  <div class="card"><div class="section-head"><h2>Evolução médica — CTI adulto</h2><span class="pill">Rascunho</span></div><div class="warning">Revise todos os campos, corrija omissões e valide os dados no prontuário antes de assinar. O texto não representa decisão clínica automatizada.</div><div id="evolutionText" class="output" style="margin-top:10px"></div></div>
 </section>
-<footer>UTI Check • Protótipo para apoio à visita médica. Histórico salvo localmente neste aparelho. Backup Google Drive requer autorização nesta sessão. Evite dados identificáveis.</footer>
+<footer>UTI Check • Protótipo para apoio à visita médica. Use dados fictícios até a validação institucional.</footer>
 </main>
 <script src="./app.js" defer></script></body></html>
