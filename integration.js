@@ -61,10 +61,10 @@ const capture=()=>{
 };
 const enqueueSave=()=>{
  if(!cur||!cur.evolutionId)return;
- const snapshot={id:cur.id,evolutionId:cur.evolutionId,bedNo:cur.bedNo,f:{...cur.f},answers:JSON.parse(JSON.stringify(cur.answers||{}))};
+ const snapshot={id:cur.id,evolutionId:cur.evolutionId,bedNo:cur.bedNo,f:{...cur.f},answers:JSON.parse(JSON.stringify(cur.answers||{})),generatedText:cur.generatedText||''};
  saveQueue=saveQueue.then(async()=>{
   await api('/patients/'+encodeURIComponent(snapshot.id),{method:'PATCH',body:{initials:String(snapshot.f.identifier||('LEITO-'+snapshot.bedNo)).slice(0,20),permanent_data:permanent(snapshot.f)}});
-  await api('/evolutions/'+encodeURIComponent(snapshot.evolutionId),{method:'PATCH',body:{content:{answers:snapshot.answers,form:snapshot.f,generated_text:typeof buildEvolution==='function'?buildEvolution():''}}});
+  await api('/evolutions/'+encodeURIComponent(snapshot.evolutionId),{method:'PATCH',body:{content:{answers:snapshot.answers,form:snapshot.f,generated_text:snapshot.generatedText}}});
  }).catch(err=>{console.error(err);alert('Não foi possível salvar no servidor: '+err.message);});
  return saveQueue;
 };
@@ -112,7 +112,7 @@ window.closeStay=async id=>{
 };
 window.deletePatient=()=>{if(cur)closeStay(cur.id);};
 window.startNewEvolution=async()=>{
- if(!cur)return;capture();await enqueueSave();
+ if(!cur)return;capture();cur.generatedText=buildEvolution();await enqueueSave();
  if(!confirm('Arquivar a evolução atual e iniciar um novo ciclo de 24 horas?'))return;
  try{
   await api('/evolutions/'+encodeURIComponent(cur.evolutionId)+'/archive',{method:'POST',body:{}});
@@ -123,12 +123,12 @@ window.startNewEvolution=async()=>{
  }catch(err){alert(err.message);}
 };
 window.archiveEvolution=async()=>{
- if(!cur)return;capture();await enqueueSave();
+ if(!cur)return;capture();cur.generatedText=buildEvolution();await enqueueSave();
  if(!confirm('Arquivar esta evolução no histórico do servidor?'))return;
  try{await api('/evolutions/'+encodeURIComponent(cur.evolutionId)+'/archive',{method:'POST',body:{}});alert('Evolução arquivada no PostgreSQL.');await loadBeds();home();}
  catch(err){alert(err.message);}
 };
-window.showEvolution=()=>{capture();enqueueSave();$('editor').classList.add('hidden');$('home').classList.add('hidden');$('evolution').classList.remove('hidden');$('evolutionText').textContent=buildEvolution();window.scrollTo(0,0);};
+window.showEvolution=()=>{capture();cur.generatedText=buildEvolution();enqueueSave();$('editor').classList.add('hidden');$('home').classList.add('hidden');$('evolution').classList.remove('hidden');$('evolutionText').textContent=buildEvolution();window.scrollTo(0,0);};
 window.backup=async()=>{
  try{capture();await enqueueSave();const payload={exported_at:new Date().toISOString(),patients:db.patients};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download='backup-uti-check-servidor-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(u);}catch(err){alert(err.message);}
 };
@@ -150,4 +150,6 @@ document.addEventListener('input',e=>{if(e.target.matches('[data-f],[data-a]')){
  catch(err){showLogin('Entre com seu usuário e senha.');}
 })();
 if($('home'))$('home').classList.add('hidden');
+ const restoreBtn=document.querySelector('[data-action="choose-restore"]');if(restoreBtn)restoreBtn.disabled=true;
+ const restoreInput=$('restore');if(restoreInput)restoreInput.disabled=true;
 })();
