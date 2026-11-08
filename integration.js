@@ -146,6 +146,44 @@ window.backup=async()=>{
 };
 const originalHome=window.home;
 window.home=async()=>{if(cur){capture();await enqueueSave();} $('editor').classList.add('hidden');$('evolution').classList.add('hidden');$('home').classList.remove('hidden');await loadBeds();};
+const showArchive=async()=>{
+ try{
+  $('home').classList.add('hidden');$('editor').classList.add('hidden');$('evolution').classList.add('hidden');$('archive').classList.remove('hidden');
+  $('archiveList').innerHTML='<p class="muted">Carregando arquivo...</p>';
+  const d=await api('/clinical/discharged');
+  const stays=d.stays||[];
+  $('archiveCount').textContent=stays.length+' registros';
+  if(!stays.length){$('archiveList').innerHTML='<p class="muted">Nenhuma internação encerrada encontrada.</p>';return;}
+  $('archiveList').innerHTML='';
+  stays.forEach(stay=>{
+   const card=document.createElement('article');card.className='card';
+   const admitted=stay.admitted_at?new Date(stay.admitted_at).toLocaleString('pt-BR'):'—';
+   const discharged=stay.discharged_at?new Date(stay.discharged_at).toLocaleString('pt-BR'):'—';
+   card.innerHTML='<div class="patient"><div><strong>Leito '+esc(String(stay.bed_no).padStart(2,'0'))+' · '+esc(stay.initials||'Sem identificação')+'</strong><div class="meta">Admissão: '+esc(admitted)+'</div><div class="meta">Alta: '+esc(discharged)+'</div><div class="meta">'+Number(stay.evolution_count||0)+' evolução(ões)</div></div><button class="btn secondary" type="button">Consultar histórico</button></div>';
+   card.querySelector('button').addEventListener('click',()=>showDischargedHistory(stay));
+   $('archiveList').appendChild(card);
+  });
+ }catch(err){$('archiveList').innerHTML='<p class="warning">Não foi possível carregar o arquivo: '+esc(err.message)+'</p>';}
+};
+const showDischargedHistory=async stay=>{
+ try{
+  const d=await api('/patients/'+encodeURIComponent(stay.id)+'/evolutions');
+  const evs=d.evolutions||[];
+  const w=window.open('','_blank');
+  if(!w){alert('Permita a abertura da janela para visualizar o histórico.');return;}
+  const items=evs.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).map(e=>{
+   const stamp=e.archived_at||e.created_at;
+   const body=e.content?.generated_text||JSON.stringify(e.content||{},null,2);
+   return '<article><b>'+esc(stamp?new Date(stamp).toLocaleString('pt-BR'):'Data não informada')+(e.archived_at?' · Arquivada':' · Registro')+'</b><pre>'+esc(body)+'</pre></article>';
+  }).join('');
+  w.document.write('<meta name="viewport" content="width=device-width"><title>Arquivo de internação</title><style>body{font:15px Arial;padding:16px;white-space:pre-wrap;color:#172536}article{border-bottom:1px solid #ccc;padding:12px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style><h2>Histórico da internação</h2><p>Leito '+esc(String(stay.bed_no).padStart(2,'0'))+' · '+esc(stay.initials||'Sem identificação')+'</p><p>Admissão: '+esc(stay.admitted_at?new Date(stay.admitted_at).toLocaleString('pt-BR'):'—')+'<br>Alta: '+esc(stay.discharged_at?new Date(stay.discharged_at).toLocaleString('pt-BR'):'—')+'</p>'+(items||'<p>Nenhuma evolução registrada.</p>'));
+ }catch(err){alert('Falha ao consultar histórico: '+err.message);}
+};
+document.addEventListener('click',e=>{
+ const el=e.target.closest('[data-action]');if(!el)return;
+ if(el.dataset.action==='open-archive')showArchive();
+ if(el.dataset.action==='close-archive'){$('archive').classList.add('hidden');$('home').classList.remove('hidden');}
+});
 document.addEventListener('submit',async e=>{
  if(e.target.id!=='utiLoginForm')return;e.preventDefault();
  const btn=e.target.querySelector('button');btn.disabled=true;
