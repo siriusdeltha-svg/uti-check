@@ -69,7 +69,7 @@ const enqueueSave=()=>{
  return saveQueue;
 };
 window.persist=()=>{}; // bloqueia gravação clínica em localStorage
-window.save=()=>{if(!cur)return;capture();$('patientTitle').textContent='Leito '+cur.bedNo;updateProgress();enqueueSave();};
+window.save=()=>{if(!cur)return;capture();$('patientTitle').textContent='Leito '+cur.bedNo;updateProgress();clearTimeout(window.__utiSaveTimer);window.__utiSaveTimer=setTimeout(enqueueSave,700);};
 window.renderHome=()=>{
  $('count').textContent=db.patients.length+' / 10 ocupados';
  $('patients').innerHTML='';
@@ -143,8 +143,6 @@ document.addEventListener('submit',async e=>{
   user=body.user;await loadCsrf();hideLogin();await loadBeds();
  }catch(err){$('utiLoginError').textContent=err.message;btn.disabled=false;}
 });
-document.addEventListener('change',e=>{if(e.target.matches('[data-f],[data-a]')){capture();enqueueSave();}});
-document.addEventListener('input',e=>{if(e.target.matches('[data-f],[data-a]')){capture();clearTimeout(window.__utiSaveTimer);window.__utiSaveTimer=setTimeout(enqueueSave,700);}});
 (async()=>{
  try{const me=await api('/auth/me');user=me.user;await loadCsrf();await loadBeds();hideLogin();}
  catch(err){showLogin('Entre com seu usuário e senha.');}
