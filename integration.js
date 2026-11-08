@@ -26,6 +26,12 @@ const showLogin=(msg='')=>{
  el.classList.remove('hidden');$('utiLoginError').textContent=msg;
 };
 const hideLogin=()=>{$('utiLogin')?.classList.add('hidden');};
+const installLogout=()=>{
+ let b=$('utiLogout');
+ if(!b){b=document.createElement('button');b.id='utiLogout';b.className='btn secondary';b.type='button';b.textContent='Sair';b.style.cssText='position:absolute;right:14px;top:14px';document.querySelector('header')?.appendChild(b);}
+ b.classList.remove('hidden');
+ b.onclick=async()=>{try{await api('/auth/logout',{method:'POST',body:{}});}catch(e){console.warn(e);}csrf=null;user=null;showLogin('Sessão encerrada.');};
+};
 const loadCsrf=async()=>{const d=await api('/auth/csrf');csrf=d.csrfToken||d.csrf||d.token;if(!csrf)throw new Error('O servidor não retornou o token CSRF esperado.');};
 const permanent=f=>{const x={...f};delete x.bed;return x;};
 const formFrom=row=>({...((row&&row.permanent_data)||{}),bed:String(row.bed_no).padStart(2,'0'),identifier:row.initials||''});
@@ -140,11 +146,11 @@ document.addEventListener('submit',async e=>{
  try{
   const d=await fetch('./api/auth/login',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({username:$('utiUser').value.trim(),password:$('utiPass').value})});
   const body=await d.json().catch(()=>({}));if(!d.ok)throw new Error(body.error||'Falha no login');
-  user=body.user;await loadCsrf();hideLogin();await loadBeds();
+  user=body.user;await loadCsrf();hideLogin();installLogout();await loadBeds();
  }catch(err){$('utiLoginError').textContent=err.message;btn.disabled=false;}
 });
 (async()=>{
- try{const me=await api('/auth/me');user=me.user;await loadCsrf();await loadBeds();hideLogin();}
+ try{const me=await api('/auth/me');user=me.user;await loadCsrf();await loadBeds();hideLogin();installLogout();}
  catch(err){showLogin('Entre com seu usuário e senha.');}
 })();
 if($('home'))$('home').classList.add('hidden');
