@@ -168,15 +168,35 @@ const showArchive=async()=>{
 const showDischargedHistory=async stay=>{
  try{
   const d=await api('/patients/'+encodeURIComponent(stay.id)+'/evolutions');
-  const evs=d.evolutions||[];
+  const evs=(d.evolutions||[]).slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
   const w=window.open('','_blank');
   if(!w){alert('Permita a abertura da janela para visualizar o histórico.');return;}
-  const items=evs.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).map(e=>{
-   const stamp=e.archived_at||e.created_at;
-   const body=e.content?.generated_text||JSON.stringify(e.content||{},null,2);
-   return '<article><b>'+esc(stamp?new Date(stamp).toLocaleString('pt-BR'):'Data não informada')+(e.archived_at?' · Arquivada':' · Registro')+'</b><pre>'+esc(body)+'</pre></article>';
+  const headings=new Set(['HISTÓRIA E EVOLUÇÃO RECENTE','EXAME FÍSICO','PARÂMETROS E BALANÇO','RESPIRATÓRIO / VENTILAÇÃO','HEMODINÂMICA','RENAL / METABÓLICO','INFECCIOSO','EXAMES COMPLEMENTARES','DISPOSITIVOS / MOBILIDADE','AVALIAÇÃO / PROBLEMAS ATIVOS','METAS TERAPÊUTICAS','CONDUTAS / PLANO']);
+  const renderText=raw=>{
+   const lines=String(raw||'').split(/\\r?\\n/);
+   let intro=[],sections=[],current=null;
+   for(const line of lines){
+    const clean=line.trim();
+    if(headings.has(clean)){current={title:clean,lines:[]};sections.push(current);}
+    else if(current)current.lines.push(line);
+    else if(clean)intro.push(line);
+   }
+   const introHtml=intro.length?'<div class="intro">'+intro.map(line=>'<p>'+esc(line)+'</p>').join('')+'</div>':'';
+   const sectionsHtml=sections.map(section=>'<section class="clinical-section"><h3>'+esc(section.title)+'</h3><div>'+section.lines.filter(x=>x.trim()).map(line=>{
+    const pos=line.indexOf(':');
+    return pos>0?'<p><strong>'+esc(line.slice(0,pos+1))+'</strong> '+esc(line.slice(pos+1).trim())+'</p>':'<p>'+esc(line)+'</p>';
+   }).join('')+'</div></section>').join('');
+   return introHtml+sectionsHtml;
+  };
+  const cards=evs.map((e,i)=>{
+   const stamp=e.created_at||e.started_at||e.archived_at;
+   const body=e.content?.generated_text||'';
+   const fallback=body?'':'<pre class="raw">'+esc(JSON.stringify(e.content||{},null,2))+'</pre>';
+   return '<article class="evolution"><div class="evolution-head"><div><span class="eyebrow">EVOLUÇÃO '+String(evs.length-i).padStart(2,'0')+'</span><h2>'+esc(stamp?new Date(stamp).toLocaleString('pt-BR'):'Data não informada')+'</h2></div><span class="status">'+(e.archived_at?'Arquivada':'Registro')+'</span></div>'+(body?renderText(body):fallback)+'</article>';
   }).join('');
-  w.document.write('<meta name="viewport" content="width=device-width"><title>Arquivo de internação</title><style>body{font:15px Arial;padding:16px;white-space:pre-wrap;color:#172536}article{border-bottom:1px solid #ccc;padding:12px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style><h2>Histórico da internação</h2><p>Leito '+esc(String(stay.bed_no).padStart(2,'0'))+' · '+esc(stay.initials||'Sem identificação')+'</p><p>Admissão: '+esc(stay.admitted_at?new Date(stay.admitted_at).toLocaleString('pt-BR'):'—')+'<br>Alta: '+esc(stay.discharged_at?new Date(stay.discharged_at).toLocaleString('pt-BR'):'—')+'</p>'+(items||'<p>Nenhuma evolução registrada.</p>'));
+  const style=`*{box-sizing:border-box}body{margin:0;background:#f2f5f8;color:#172536;font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}.toolbar{position:sticky;top:0;background:#10283d;padding:12px max(18px,calc((100% - 980px)/2));display:flex;justify-content:flex-end;z-index:2}.toolbar button{border:0;border-radius:9px;padding:10px 16px;background:#e5eef7;color:#123b5e;font-weight:700;cursor:pointer}.page{max-width:980px;margin:28px auto;padding:0 18px}.summary,.evolution{background:white;border:1px solid #d9e2ec;border-radius:14px;padding:22px;margin-bottom:18px;box-shadow:0 2px 8px #10283d0a}.summary h1{margin:0 0 8px;font-size:26px}.muted{color:#52677d}.evolution-head{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #e3eaf1;padding-bottom:14px;margin-bottom:14px}.eyebrow{font-size:11px;letter-spacing:.08em;font-weight:800;color:#52708b}.evolution h2{font-size:19px;margin:4px 0}.status{font-size:12px;background:#edf3f8;padding:5px 10px;border-radius:20px}.intro{background:#f7f9fb;border-radius:10px;padding:12px 16px;margin-bottom:14px}.intro p{margin:4px 0}.clinical-section{border:1px solid #e1e8ef;border-radius:10px;margin:12px 0;overflow:hidden}.clinical-section h3{margin:0;background:#edf3f8;padding:10px 14px;font-size:14px;color:#183b59}.clinical-section>div{padding:10px 14px}.clinical-section p{margin:5px 0;overflow-wrap:anywhere}.raw{white-space:pre-wrap;overflow-wrap:anywhere}.empty{padding:24px;text-align:center;color:#52677d}@media print{body{background:#fff;font-size:11pt}.toolbar{display:none}.page{max-width:none;margin:0;padding:0}.summary,.evolution{box-shadow:none;border:1px solid #bbb;break-inside:avoid;margin:0 0 12px;padding:14px}.clinical-section{break-inside:avoid}.evolution{break-before:page}.evolution:first-of-type{break-before:auto}}`;
+  w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Histórico da internação</title><style>'+style+'</style></head><body><div class="toolbar"><button onclick="window.print()">Imprimir / Salvar PDF</button></div><main class="page"><section class="summary"><h1>Histórico da internação</h1><p><strong>Leito '+esc(String(stay.bed_no).padStart(2,'0'))+' · '+esc(stay.initials||'Sem identificação')+'</strong></p><p class="muted">Admissão: '+esc(stay.admitted_at?new Date(stay.admitted_at).toLocaleString('pt-BR'):'—')+'<br>Alta: '+esc(stay.discharged_at?new Date(stay.discharged_at).toLocaleString('pt-BR'):'—')+'</p><p class="muted">'+evs.length+' evolução(ões) registrada(s)</p></section>'+(cards||'<div class="summary empty">Nenhuma evolução registrada.</div>')+'</main></body></html>');
+  w.document.close();
  }catch(err){alert('Falha ao consultar histórico: '+err.message);}
 };
 document.addEventListener('click',e=>{
