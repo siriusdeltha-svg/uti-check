@@ -173,19 +173,18 @@ const showDischargedHistory=async stay=>{
   if(!w){alert('Permita a abertura da janela para visualizar o histórico.');return;}
   const headings=new Set(['HISTÓRIA E EVOLUÇÃO RECENTE','EXAME FÍSICO','PARÂMETROS E BALANÇO','RESPIRATÓRIO / VENTILAÇÃO','HEMODINÂMICA','RENAL / METABÓLICO','INFECCIOSO','EXAMES COMPLEMENTARES','DISPOSITIVOS / MOBILIDADE','AVALIAÇÃO / PROBLEMAS ATIVOS','METAS TERAPÊUTICAS','CONDUTAS / PLANO']);
   const renderText=raw=>{
-   const lines=String(raw||'').split(/\r?\n/);
-   let intro=[],sections=[],current=null;
-   for(const line of lines){
-    const clean=line.trim();
-    if(headings.has(clean)){current={title:clean,lines:[]};sections.push(current);}
-    else if(current)current.lines.push(line);
-    else if(clean)intro.push(line);
-   }
-   const introHtml=intro.length?'<div class="intro">'+intro.map(line=>'<p>'+esc(line)+'</p>').join('')+'</div>':'';
-   const sectionsHtml=sections.map(section=>'<section class="clinical-section"><h3>'+esc(section.title)+'</h3><div>'+section.lines.filter(x=>x.trim()).map(line=>{
+   const source=String(raw||'').replace(/\\r/g,'');
+   const headingList=[...headings].sort((a,b)=>b.length-a.length);
+   const headingPattern=new RegExp('(?:^|\\\\s*)('+headingList.map(x=>x.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&')).join('|')+')(?:\\\\s|$)','g');
+   const matches=[...source.matchAll(headingPattern)];
+   const intro=source.slice(0,matches.length?matches[0].index:source.length).trim();
+   const sections=matches.map((m,i)=>({title:m[1],body:source.slice(m.index+m[0].length,i+1<matches.length?matches[i+1].index:source.length).trim()}));
+   const renderLines=body=>body.split(/\\n|(?<=[.!?])\\s+(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ])/).map(x=>x.trim()).filter(Boolean).map(line=>{
     const pos=line.indexOf(':');
-    return pos>0?'<p><strong>'+esc(line.slice(0,pos+1))+'</strong> '+esc(line.slice(pos+1).trim())+'</p>':'<p>'+esc(line)+'</p>';
-   }).join('')+'</div></section>').join('');
+    return pos>0&&pos<70?'<p><strong>'+esc(line.slice(0,pos+1))+'</strong> '+esc(line.slice(pos+1).trim())+'</p>':'<p>'+esc(line)+'</p>';
+   }).join('');
+   const introHtml=intro?'<div class="intro">'+renderLines(intro)+'</div>':'';
+   const sectionsHtml=sections.map(section=>'<section class="clinical-section"><h3>'+esc(section.title)+'</h3><div>'+renderLines(section.body)+'</div></section>').join('');
    return introHtml+sectionsHtml;
   };
   const cards=evs.map((e,i)=>{
