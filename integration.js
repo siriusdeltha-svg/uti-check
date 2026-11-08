@@ -43,7 +43,7 @@ const loadBeds=async()=>{
   if(!b.stay_id)continue;
   const hist=await api('/patients/'+encodeURIComponent(b.stay_id)+'/evolutions');
   const all=hist.evolutions||[];
-  let activeEvolution=all.find(e=>!e.archived_at);
+  let activeEvolution=all.filter(e=>!e.archived_at).sort((a,b)=>new Date(b.started_at||b.created_at)-new Date(a.started_at||a.created_at))[0];
   if(!activeEvolution){
    const made=await api('/patients/'+encodeURIComponent(b.stay_id)+'/evolutions',{method:'POST',body:{content:{answers:{}}}});
    activeEvolution=made.evolution;
