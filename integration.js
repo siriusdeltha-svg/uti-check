@@ -173,13 +173,23 @@ const showDischargedHistory=async stay=>{
   if(!w){alert('Permita a abertura da janela para visualizar o histórico.');return;}
   const headings=new Set(['HISTÓRIA E EVOLUÇÃO RECENTE','EXAME FÍSICO','PARÂMETROS E BALANÇO','RESPIRATÓRIO / VENTILAÇÃO','HEMODINÂMICA','RENAL / METABÓLICO','INFECCIOSO','EXAMES COMPLEMENTARES','DISPOSITIVOS / MOBILIDADE','AVALIAÇÃO / PROBLEMAS ATIVOS','METAS TERAPÊUTICAS','CONDUTAS / PLANO']);
   const renderText=raw=>{
-   const source=String(raw||'').replace(/\\r/g,'');
+   const source=String(raw||'').replaceAll('\\r','');
    const headingList=[...headings].sort((a,b)=>b.length-a.length);
-   const headingPattern=new RegExp('(?:^|\\\\s*)('+headingList.map(x=>x.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\$&')).join('|')+')(?:\\\\s|$)','g');
-   const matches=[...source.matchAll(headingPattern)];
-   const intro=source.slice(0,matches.length?matches[0].index:source.length).trim();
-   const sections=matches.map((m,i)=>({title:m[1],body:source.slice(m.index+m[0].length,i+1<matches.length?matches[i+1].index:source.length).trim()}));
-   const renderLines=body=>body.split(/\\n|(?<=[.!?])\\s+(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ])/).map(x=>x.trim()).filter(Boolean).map(line=>{
+   const found=[];
+   let cursor=0;
+   while(cursor<source.length){
+    let next=null;
+    for(const title of headingList){
+     const at=source.indexOf(title,cursor);
+     if(at>=0&&(!next||at<next.at))next={at,title};
+    }
+    if(!next)break;
+    found.push(next);
+    cursor=next.at+next.title.length;
+   }
+   const intro=source.slice(0,found.length?found[0].at:source.length).trim();
+   const sections=found.map((m,i)=>({title:m.title,body:source.slice(m.at+m.title.length,i+1<found.length?found[i+1].at:source.length).trim()}));
+   const renderLines=body=>body.split('\\n').map(x=>x.trim()).filter(Boolean).map(line=>{
     const pos=line.indexOf(':');
     return pos>0&&pos<70?'<p><strong>'+esc(line.slice(0,pos+1))+'</strong> '+esc(line.slice(pos+1).trim())+'</p>':'<p>'+esc(line)+'</p>';
    }).join('');
