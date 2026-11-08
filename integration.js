@@ -194,7 +194,7 @@ const showDischargedHistory=async stay=>{
     return pos>0&&pos<70?'<p><strong>'+esc(line.slice(0,pos+1))+'</strong> '+esc(line.slice(pos+1).trim())+'</p>':'<p>'+esc(line)+'</p>';
    }).join('');
    const introHtml=intro?'<div class="intro">'+renderLines(intro)+'</div>':'';
-   const sectionsHtml=sections.map(section=>'<section class="clinical-section"><h3>'+esc(section.title)+'</h3><div>'+renderLines(section.body)+'</div></section>').join('');
+   const sectionsHtml=sections.filter(section=>section.body).map(section=>'<section class="clinical-section"><h3>'+esc(section.title)+'</h3><div>'+renderLines(section.body)+'</div></section>').join('');
    return introHtml+sectionsHtml;
   };
   const cards=evs.map((e,i)=>{
