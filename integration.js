@@ -118,7 +118,13 @@ window.closeStay=async id=>{
 };
 window.deletePatient=()=>{if(cur)closeStay(cur.id);};
 window.startNewEvolution=async()=>{
- if(!cur)return;capture();cur.generatedText=buildEvolution();await enqueueSave();
+ if(!cur)return;
+ clearTimeout(window.__utiSaveTimer);
+ capture();
+ cur.generatedText=buildEvolution();
+ clearTimeout(window.__utiSaveTimer);
+ await enqueueSave();
+ clearTimeout(window.__utiSaveTimer);
  if(!confirm('Arquivar a evolução atual e iniciar um novo ciclo de 24 horas?'))return;
  try{
   await api('/evolutions/'+encodeURIComponent(cur.evolutionId)+'/archive',{method:'POST',body:{}});
