@@ -173,7 +173,7 @@ const showDischargedHistory=async stay=>{
   if(!w){alert('Permita a abertura da janela para visualizar o histórico.');return;}
   const headings=new Set(['HISTÓRIA E EVOLUÇÃO RECENTE','EXAME FÍSICO','PARÂMETROS E BALANÇO','RESPIRATÓRIO / VENTILAÇÃO','HEMODINÂMICA','RENAL / METABÓLICO','INFECCIOSO','EXAMES COMPLEMENTARES','DISPOSITIVOS / MOBILIDADE','AVALIAÇÃO / PROBLEMAS ATIVOS','METAS TERAPÊUTICAS','CONDUTAS / PLANO']);
   const renderText=raw=>{
-   const lines=String(raw||'').split(/\\r?\\n/);
+   const lines=String(raw||'').split(/\r?\n/);
    let intro=[],sections=[],current=null;
    for(const line of lines){
     const clean=line.trim();
