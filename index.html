@@ -5,6 +5,7 @@
 <meta name="theme-color" content="#10243a"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="UTI Check">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png">
 <title>UTI Check Adulto</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{--bg:#f2f5f8;--card:#fff;--ink:#172536;--muted:#64748b;--line:#dce4ec;--blue:#1769aa;--navy:#10243a;--green:#16845b;--amber:#a15c00;--red:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:calc(28px + env(safe-area-inset-bottom))}
@@ -20,8 +21,8 @@ h2{font-size:17px;margin:0 0 11px}h3{font-size:14px;margin:0 0 8px}.muted{color:
 <header><h1>UTI Check</h1><small>Visita guiada • UTI adulto • Evolução médica</small></header>
 <main class="wrap">
 <section id="home">
- <div class="toolbar"><button class="btn" onclick="newPatient()">＋ Cadastrar paciente em leito livre</button><button class="btn secondary" onclick="backup()">Exportar backup</button><button class="btn secondary" onclick="$('restore').click()">Importar backup</button><input id="restore" type="file" accept="application/json" class="hidden" onchange="restoreData(event)"></div>
- <div class="warning">Protótipo de apoio à documentação. Use somente dados fictícios/anonimizados durante os testes. Não é prontuário eletrônico validado. Não armazena dados na nuvem nesta versão. Não insira identificadores reais de pacientes.</div>
+ <div class="toolbar"><button class="btn" onclick="newPatient()">＋ Cadastrar paciente em leito livre</button><button class="btn secondary" onclick="backup()">Exportar backup</button><button class="btn secondary" onclick="connectDrive()">Conectar Google Drive</button><button class="btn secondary" onclick="$('restore').click()">Importar backup</button><input id="restore" type="file" accept="application/json" class="hidden" onchange="restoreData(event)"></div>
+ <div class="warning">Protótipo de apoio à documentação. Use somente dados fictícios/anonimizados durante os testes. Não é prontuário eletrônico validado. O backup no Google Drive requer autorização e conexão ativa. Não insira identificadores reais de pacientes.</div><div class="card"><div class="section-head"><h3>Backup Google Drive</h3><span class="pill" id="driveStatus">Não conectado</span></div><p class="muted" id="driveMessage">Conecte sua conta Google para enviar automaticamente cada evolução arquivada. Arquivos pendentes permanecem no aparelho até a sincronização.</p><div class="toolbar"><button class="btn secondary" onclick="connectDrive()">Conectar / reconectar</button><button class="btn secondary" onclick="syncPending()">Sincronizar pendentes</button></div></div>
  <div class="card"><div class="section-head"><h2>Painel dos 10 leitos</h2><span class="pill" id="count">0</span></div><div id="patients"></div></div>
  <div class="card"><h3>Como funciona</h3><p class="muted">Preencha a visita por etapas, navegue pelas abas livremente e gere uma evolução estruturada ao final. Cada leito tem um paciente ativo e uma evolução por ciclo de 24 horas. Evoluções arquivadas permanecem no histórico local deste aparelho.</p></div>
 </section>
@@ -54,7 +55,7 @@ h2{font-size:17px;margin:0 0 11px}h3{font-size:14px;margin:0 0 8px}.muted{color:
  <div class="toolbar"><button class="btn secondary" onclick="backEditor()">← Voltar à visita</button><button class="btn green" onclick="archiveEvolution()">Arquivar evolução do dia</button><button class="btn secondary" onclick="copyEvolution()">Copiar evolução</button><button class="btn secondary" onclick="downloadEvolution()">Baixar .txt</button></div>
  <div class="card"><div class="section-head"><h2>Evolução médica — CTI adulto</h2><span class="pill">Rascunho</span></div><div class="warning">Revise todos os campos, corrija omissões e valide os dados no prontuário antes de assinar. O texto não representa decisão clínica automatizada.</div><div id="evolutionText" class="output" style="margin-top:10px"></div></div>
 </section>
-<footer>UTI Check • Protótipo para apoio à visita médica. Histórico salvo localmente neste aparelho. Backup Google Drive ainda não conectado. Evite dados identificáveis.</footer>
+<footer>UTI Check • Protótipo para apoio à visita médica. Histórico salvo localmente neste aparelho. Backup Google Drive requer autorização nesta sessão. Evite dados identificáveis.</footer>
 </main>
 <script>
 const stages=[
@@ -149,18 +150,58 @@ const stages=[
 ]}
 ];
 let db=JSON.parse(localStorage.getItem('uticheck_adulto_v2')||'{"patients":[]}'),cur=null,active=0;
+const GOOGLE_CLIENT_ID='865704017235-7u5di1kcmk49bebp6mdn38m5occe051a.apps.googleusercontent.com';
+const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
+let driveAccessToken=null,driveTokenClient=null,driveFolderId=localStorage.getItem('uticheck_drive_folder_id')||null;
+let pendingUploads=JSON.parse(localStorage.getItem('uticheck_drive_pending')||'[]');
+
 if(!Array.isArray(db.patients))db={patients:[]};
 // Migração não destrutiva: mantém pacientes já cadastrados e cria histórico/ciclo.
 db.patients.forEach((p,i)=>{p.f||={};p.answers||={};p.history=Array.isArray(p.history)?p.history:[];p.bedNo=String(p.bedNo||p.f.bed||String(i+1).padStart(2,'0')).padStart(2,'0');p.f.bed=p.bedNo;p.cycleStartedAt=p.cycleStartedAt||new Date().toISOString();p.cycleId=p.cycleId||p.cycleStartedAt;p.archivedCycleId=p.archivedCycleId||null;});
 const $=id=>document.getElementById(id);
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function persist(){localStorage.setItem('uticheck_adulto_v2',JSON.stringify(db))}
+function setDriveStatus(status,msg){let a=$('driveStatus'),b=$('driveMessage');if(a)a.textContent=status;if(b)b.textContent=msg}
+function savePending(){localStorage.setItem('uticheck_drive_pending',JSON.stringify(pendingUploads))}
+function connectDrive(){
+ if(!window.google?.accounts?.oauth2){alert('A autenticação do Google ainda está carregando. Aguarde alguns segundos e tente novamente.');return}
+ if(!driveTokenClient){driveTokenClient=google.accounts.oauth2.initTokenClient({client_id:GOOGLE_CLIENT_ID,scope:DRIVE_SCOPE,include_granted_scopes:true,callback:async(resp)=>{if(resp.error){setDriveStatus('Falha na conexão','Não foi possível autorizar o Google Drive.');alert('Falha na autorização: '+resp.error);return}driveAccessToken=resp.access_token;setDriveStatus('Conectado','Conta autorizada nesta sessão. Evoluções arquivadas serão enviadas enquanto a autorização estiver válida.');await syncPending();}})}
+ driveTokenClient.requestAccessToken({prompt:'consent'});
+}
+async function driveFetch(url,opts={}){if(!driveAccessToken)throw new Error('Conecte o Google Drive para sincronizar.');let h=new Headers(opts.headers||{});h.set('Authorization','Bearer '+driveAccessToken);return fetch(url,{...opts,headers:h})}
+async function ensureDriveFolder(){
+ if(driveFolderId)return driveFolderId;
+ let q=encodeURIComponent("name='UTI Check Backup' and mimeType='application/vnd.google-apps.folder' and trashed=false");
+ let r=await driveFetch('https://www.googleapis.com/drive/v3/files?q='+q+'&fields=files(id,name)&pageSize=10');if(!r.ok)throw new Error('Não foi possível consultar a pasta no Drive ('+r.status+').');
+ let j=await r.json();if(j.files?.length)driveFolderId=j.files[0].id;else{let c=await driveFetch('https://www.googleapis.com/drive/v3/files?fields=id,name',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'UTI Check Backup',mimeType:'application/vnd.google-apps.folder'})});if(!c.ok)throw new Error('Não foi possível criar a pasta no Drive ('+c.status+').');driveFolderId=(await c.json()).id;}
+ localStorage.setItem('uticheck_drive_folder_id',driveFolderId);return driveFolderId;
+}
+async function uploadArchive(item){
+ let folder=await ensureDriveFolder(),metadata={name:item.filename,mimeType:'application/json',parents:[folder]},boundary='uti_check_boundary_7f3a';
+ let body='--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify(metadata)+'\r\n--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify(item.payload)+'\r\n--'+boundary+'--';
+ let r=await driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+boundary},body});if(!r.ok)throw new Error('Falha ao enviar arquivo ('+r.status+').');return await r.json();
+}
+async function syncPending(){
+ if(!driveAccessToken){setDriveStatus(pendingUploads.length?'Pendente':'Não conectado',pendingUploads.length+' arquivo(s) aguardando. Conecte o Google Drive para enviar.');return;}
+ if(!pendingUploads.length){setDriveStatus('Sincronizado','Não há evoluções pendentes de envio.');return;}
+ setDriveStatus('Sincronizando','Enviando '+pendingUploads.length+' arquivo(s) para o Google Drive...');let failed=[];
+ for(let item of pendingUploads){try{await uploadArchive(item);}catch(e){failed.push(item);console.error(e);}}
+ pendingUploads=failed;savePending();if(failed.length)setDriveStatus('Envio pendente',failed.length+' arquivo(s) não foram enviados. Reconecte e tente novamente.');else setDriveStatus('Sincronizado','Todas as evoluções arquivadas foram enviadas ao Google Drive.');
+}
+function queueArchiveForDrive(p,record){
+ let stamp=new Date(record.archivedAt).toISOString().replace(/[:.]/g,'-');
+ let payload={app:'UTI Check',schemaVersion:1,bedNo:p.bedNo,patientId:p.id,permanentPatientData:p.f,archivedEvolution:record};
+ pendingUploads.push({filename:'Leito-'+p.bedNo+'-'+stamp+'.json',payload});savePending();
+ if(driveAccessToken)syncPending();else setDriveStatus('Backup pendente',pendingUploads.length+' evolução(ões) arquivada(s) localmente aguardando conexão com Google Drive.');
+}
+window.addEventListener('online',()=>{if(driveAccessToken)syncPending()});
+
 function occupied(){return new Set(db.patients.map(p=>p.bedNo))}
 function newPatient(){let used=occupied(),n=Array.from({length:10},(_,i)=>String(i+1).padStart(2,'0')).find(x=>!used.has(x));if(!n){alert('Os 10 leitos já estão ocupados. Encerre uma internação antes de cadastrar outro paciente.');return}cur={id:Date.now().toString(),bedNo:n,f:{bed:n},answers:{},history:[],cycleStartedAt:new Date().toISOString(),cycleId:Date.now().toString(),archivedCycleId:null};db.patients.push(cur);persist();openPatient(cur.id)}
 function renderHome(){let used=occupied();$('count').textContent=db.patients.length+' / 10 ocupados';$('patients').innerHTML='';for(let i=1;i<=10;i++){let n=String(i).padStart(2,'0'),p=db.patients.find(x=>x.bedNo===n);let el=document.createElement('div');el.className='card';if(!p){el.innerHTML=`<div class="patient"><div><strong>Leito ${n} · Livre</strong><div class="meta">Nenhum paciente cadastrado</div></div><button class="btn secondary">Ocupar leito</button></div>`;el.querySelector('button').onclick=newPatient;}else{let age=(Date.now()-new Date(p.cycleStartedAt||Date.now()).getTime())/3600000;let status=age>=24?'Nova visita pendente':(p.lastArchivedAt&&new Date(p.lastArchivedAt)>new Date(p.cycleStartedAt)?'Evolução arquivada':'Em preenchimento');el.innerHTML=`<div class="patient"><div><strong>Leito ${n} · ${esc(p.f.identifier||'Paciente')}</strong><div class="meta">${esc(p.f.diagnosis||'Diagnóstico não informado')} · ${status}</div><div class="meta">Histórico: ${(p.history||[]).length} evolução(ões)</div></div><button class="btn secondary">Abrir leito</button></div><div class="toolbar"><button class="btn secondary histbtn">Ver histórico</button><button class="btn danger closebtn">Encerrar internação</button></div>`;el.querySelector('.patient button').onclick=()=>openPatient(p.id);el.querySelector('.histbtn').onclick=()=>showHistory(p.id);el.querySelector('.closebtn').onclick=()=>closeStay(p.id);} $('patients').appendChild(el)}}
 function home(){$('editor').classList.add('hidden');$('evolution').classList.add('hidden');$('home').classList.remove('hidden');renderHome()}
 function hasDailyData(p){return Object.values(p.answers||{}).some(v=>Array.isArray(v)?v.length>0:String(v??'').trim()!=='')}
-function archiveDraft(p,label='Fechamento do ciclo de 24h'){p.history=p.history||[];if(p.archivedCycleId===p.cycleId||p.history.some(x=>x.cycleId===p.cycleId))return false;let txt=buildEvolution();p.history.push({id:Date.now().toString(),cycleId:p.cycleId,bedNo:p.bedNo,archivedAt:new Date().toISOString(),label,text:txt,form:JSON.parse(JSON.stringify(p.f||{})),answers:JSON.parse(JSON.stringify(p.answers||{}))});p.lastArchivedAt=new Date().toISOString();p.archivedCycleId=p.cycleId;return true;}
+function archiveDraft(p,label='Fechamento do ciclo de 24h'){p.history=p.history||[];if(p.archivedCycleId===p.cycleId||p.history.some(x=>x.cycleId===p.cycleId))return false;let txt=buildEvolution();let rec={id:Date.now().toString(),cycleId:p.cycleId,bedNo:p.bedNo,archivedAt:new Date().toISOString(),label,text:txt,form:JSON.parse(JSON.stringify(p.f||{})),answers:JSON.parse(JSON.stringify(p.answers||{}))};p.history.push(rec);p.lastArchivedAt=rec.archivedAt;p.archivedCycleId=p.cycleId;queueArchiveForDrive(p,rec);return true;}
 function startNewEvolution(){if(!cur)return;save();if(!confirm('Iniciar uma nova evolução para este paciente? A evolução atual será arquivada no histórico e os campos diários serão limpos. O cadastro e os dados permanentes do paciente serão mantidos.'))return;if(hasDailyData(cur)&&cur.archivedCycleId!==cur.cycleId)archiveDraft(cur,'Evolução anterior — arquivada ao iniciar nova visita');cur.answers={};cur.cycleStartedAt=new Date().toISOString();cur.cycleId=Date.now().toString();cur.archivedCycleId=null;persist();active=0;renderTabs();renderStage();updateProgress();$('evolution').classList.add('hidden');$('editor').classList.remove('hidden');alert('Nova evolução iniciada. Os dados diários anteriores foram preservados no histórico.');}
 function rotateCycle(p){let age=(Date.now()-new Date(p.cycleStartedAt||Date.now()).getTime())/3600000;if(age<24)return false;if(!confirm(`Já se passaram ${Math.floor(age)} horas desde o início deste ciclo do leito ${p.bedNo}. Arquivar o registro atual e iniciar uma nova evolução de 24 horas? O histórico anterior será preservado.`))return false;if(hasDailyData(p)&&p.archivedCycleId!==p.cycleId)archiveDraft(p,'Fechamento do ciclo de 24h');p.answers={};p.cycleStartedAt=new Date().toISOString();p.cycleId=Date.now().toString();p.archivedCycleId=null;persist();return true}
 function openPatient(id){cur=db.patients.find(p=>p.id===id);if(!cur)return;cur.f||={};cur.answers||={};cur.history||=[];rotateCycle(cur);$('home').classList.add('hidden');$('evolution').classList.add('hidden');$('editor').classList.remove('hidden');document.querySelectorAll('[data-f]').forEach(el=>el.value=cur.f[el.dataset.f]??'');active=0;renderTabs();renderStage();updateProgress();$('patientTitle').textContent='Leito '+cur.bedNo}
@@ -190,7 +231,7 @@ L.push('\n\nMETAS TERAPÊUTICAS');[['Hemodinâmica','goalHemodynamic'],['Respira
 L.push('\n\nCONDUTAS / PLANO');[['Dieta/nutrição/hidratação','dietPlan'],['Medicamentos','medPlan'],['TEV/anticoagulação','anticoagPlan'],['Profilaxias','prophylaxis'],['Procedimentos/pareceres','procedures'],['Exames/reavaliação','testsPlan'],['Família/objetivos de cuidado','family'],['Próximas 24h/pendências','next24'],['Perspectiva de saída','disposition']].forEach(([a,b])=>{let x=fieldLine(a,b);if(x)L.push(x)});
 L.push('\n\nRASCUNHO GERADO PELO UTI CHECK — revisar, completar lacunas e validar no prontuário antes de assinar.');return L.join('\n')}
 function showEvolution(){save();$('editor').classList.add('hidden');$('home').classList.add('hidden');$('evolution').classList.remove('hidden');$('evolutionText').textContent=buildEvolution();window.scrollTo(0,0)}
-function archiveEvolution(){if(!cur)return;save();let text=buildEvolution();if(!confirm('Arquivar esta evolução no histórico do leito '+cur.bedNo+'? O registro ficará preservado neste aparelho.'))return;cur.history=cur.history||[];if(cur.archivedCycleId!==cur.cycleId){cur.history.push({id:Date.now().toString(),cycleId:cur.cycleId,bedNo:cur.bedNo,archivedAt:new Date().toISOString(),label:'Evolução diária',text,form:JSON.parse(JSON.stringify(cur.f||{})),answers:JSON.parse(JSON.stringify(cur.answers||{}))});cur.lastArchivedAt=new Date().toISOString();cur.archivedCycleId=cur.cycleId;}persist();alert('Evolução arquivada no histórico local do leito '+cur.bedNo+'. Para começar outra, abra o leito e toque em “Iniciar nova evolução”.');home()}
+function archiveEvolution(){if(!cur)return;save();let text=buildEvolution();if(!confirm('Arquivar esta evolução no histórico do leito '+cur.bedNo+'? O registro ficará preservado neste aparelho.'))return;cur.history=cur.history||[];if(cur.archivedCycleId!==cur.cycleId){let rec={id:Date.now().toString(),cycleId:cur.cycleId,bedNo:cur.bedNo,archivedAt:new Date().toISOString(),label:'Evolução diária',text,form:JSON.parse(JSON.stringify(cur.f||{})),answers:JSON.parse(JSON.stringify(cur.answers||{}))};cur.history.push(rec);cur.lastArchivedAt=rec.archivedAt;cur.archivedCycleId=cur.cycleId;queueArchiveForDrive(cur,rec);}persist();alert('Evolução arquivada no histórico local do leito '+cur.bedNo+'. '+(driveAccessToken?'Envio ao Google Drive iniciado.':'Backup na nuvem pendente: conecte o Google Drive no painel inicial.'));home()}
 function backEditor(){$('evolution').classList.add('hidden');$('editor').classList.remove('hidden')}
 async function copyEvolution(){try{await navigator.clipboard.writeText(buildEvolution());alert('Evolução copiada.')}catch(e){alert('Não foi possível copiar automaticamente. Selecione o texto e copie manualmente.')}}
 function downloadEvolution(){let blob=new Blob([buildEvolution()],{type:'text/plain;charset=utf-8'}),a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download='evolucao-CTI-leito-'+(cur.f.bed||'sem-leito')+'.txt';a.click();URL.revokeObjectURL(u)}
@@ -199,4 +240,5 @@ function backup(){let b=new Blob([JSON.stringify(db,null,2)],{type:'application/
 function restoreData(e){let file=e.target.files[0];if(!file)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!Array.isArray(x.patients))throw 0;x.patients.forEach((p,i)=>{p.history=p.history||[];p.bedNo=String(p.bedNo||p.f?.bed||String(i+1).padStart(2,'0')).padStart(2,'0');p.f=p.f||{};p.f.bed=p.bedNo;p.answers=p.answers||{};p.cycleStartedAt=p.cycleStartedAt||new Date().toISOString();p.cycleId=p.cycleId||p.cycleStartedAt;p.archivedCycleId=p.archivedCycleId||null});if(confirm('Substituir os dados atuais pelo backup?')){db=x;persist();renderHome();alert('Backup importado.')}}catch(_){alert('Arquivo inválido.')} };r.readAsText(file);e.target.value=''}
 if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 renderHome();
+setDriveStatus(pendingUploads.length?'Backup pendente':'Não conectado',pendingUploads.length?pendingUploads.length+' arquivo(s) aguardando envio. Conecte o Google Drive.':'Conecte sua conta Google para habilitar o envio automático após arquivar evoluções.');
 </script></body></html>
