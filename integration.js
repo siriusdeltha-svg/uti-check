@@ -146,8 +146,8 @@ document.addEventListener('submit',async e=>{
  try{
   const d=await fetch('./api/auth/login',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({username:$('utiUser').value.trim(),password:$('utiPass').value})});
   const body=await d.json().catch(()=>({}));if(!d.ok)throw new Error(body.error||'Falha no login');
-  user=body.user;await loadCsrf();hideLogin();installLogout();await loadBeds();$('home').classList.remove('hidden');
- }catch(err){$('utiLoginError').textContent=err.message;btn.disabled=false;}
+  user=body.user;await loadCsrf();await loadBeds();$('home').classList.remove('hidden');hideLogin();installLogout();
+ }catch(err){showLogin('Falha ao carregar os leitos: '+err.message);btn.disabled=false;}
 });
 (async()=>{
  try{const me=await api('/auth/me');user=me.user;await loadCsrf();await loadBeds();hideLogin();$('home').classList.remove('hidden');installLogout();}
