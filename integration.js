@@ -255,11 +255,12 @@ window.saveEvolutionEdit=async()=>{
  const text=$('evolutionEditor').value.trim();
  if(!text){alert('A evolução não pode ficar vazia.');return;}
  const previous=cur.generatedText;
+ const wasProvisional=$('evolutionStatus').textContent==='PROVISÓRIA';
  cur.generatedText=text;cur.generatedTextEdited=true;
  try{
   await enqueueSave();
   $('evolutionText').textContent=text;
-  $('evolutionStatus').textContent='Editada';
+  $('evolutionStatus').textContent=wasProvisional?'PROVISÓRIA':'Editada';
   $('evolutionWarning').textContent='Texto editado manualmente. Revise cuidadosamente e confirme a fidelidade aos dados do prontuário antes de assinar.';
   window.cancelEvolutionEdit();
   alert('Edição registrada nesta evolução.');
@@ -281,7 +282,8 @@ window.printEvolutionPdf=()=>{
 };
 document.addEventListener('click',e=>{
  const el=e.target.closest('[data-action]');if(!el)return;
- if(el.dataset.action==='edit-evolution')window.beginEvolutionEdit();
+ if(el.dataset.action==='back-editor'||el.dataset.action==='home')window.cancelEvolutionEdit();
+  if(el.dataset.action==='edit-evolution')window.beginEvolutionEdit();
   if(el.dataset.action==='save-evolution-edit')window.saveEvolutionEdit();
   if(el.dataset.action==='cancel-evolution-edit')window.cancelEvolutionEdit();
   if(el.dataset.action==='pdf-evolution')window.printEvolutionPdf();
