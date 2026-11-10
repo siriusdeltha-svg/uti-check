@@ -164,7 +164,31 @@ window.archiveEvolution=async()=>{
  catch(err){alert(err.message);}
 };
 window.showEvolution=async()=>{if(!cur)return;clearTimeout(window.__utiSaveTimer);capture();if(!cur.generatedTextEdited)cur.generatedText=buildEvolution();try{await enqueueSave();$('evolutionStatus').textContent=cur.generatedTextEdited?'Editada':'Rascunho';$('evolutionWarning').textContent='Revise todos os campos, corrija omissões e valide os dados no prontuário antes de assinar. O texto não representa decisão clínica automatizada.';$('archiveEvolutionBtn').classList.remove('hidden');$('editor').classList.add('hidden');$('home').classList.add('hidden');$('evolution').classList.remove('hidden');$('evolutionText').textContent=cur.generatedText||buildEvolution();window.scrollTo(0,0);}catch(err){alert('Não foi possível confirmar o salvamento. A visita continua aberta: '+err.message);}};
-window.showProvisionalEvolution=async()=>{if(!cur)return;clearTimeout(window.__utiSaveTimer);capture();const body=buildEvolution();cur.generatedText='EVOLUÇÃO PROVISÓRIA — PARA PASSAGEM DE CASO — NÃO FINALIZADA\n\n'+body;cur.generatedTextEdited=false;try{await enqueueSave();$('evolutionStatus').textContent='PROVISÓRIA';$('evolutionWarning').textContent='Documento provisório para passagem de caso. A visita permanece aberta; esta visualização não conclui, não arquiva e não substitui a evolução médica final. Confira os dados e complete a visita depois.';$('archiveEvolutionBtn').classList.add('hidden');$('editor').classList.add('hidden');$('home').classList.add('hidden');$('evolution').classList.remove('hidden');$('evolutionText').textContent=cur.generatedText;window.scrollTo(0,0);}catch(err){alert('Não foi possível confirmar o salvamento. A visita continua aberta: '+err.message);}};
+window.showProvisionalEvolution=async()=>{
+ if(!cur)return;
+ clearTimeout(window.__utiSaveTimer);
+ capture();
+ const prefix='EVOLUÇÃO PROVISÓRIA — PARA PASSAGEM DE CASO — NÃO FINALIZADA\n\n';
+ const existing=String(cur.generatedText||'');
+ const manuallyEdited=cur.generatedTextEdited===true;
+ const source=manuallyEdited&&existing?existing:buildEvolution();
+ const body=source.startsWith(prefix)?source.slice(prefix.length):source;
+ cur.generatedText=prefix+body;
+ cur.generatedTextEdited=manuallyEdited;
+ try{
+  await enqueueSave();
+  $('evolutionStatus').textContent='PROVISÓRIA';
+  $('evolutionWarning').textContent='Documento provisório para passagem de caso. A visita permanece aberta; esta visualização não conclui, não arquiva e não substitui a evolução médica final. Confira os dados e complete a visita depois.';
+  $('archiveEvolutionBtn').classList.add('hidden');
+  $('editor').classList.add('hidden');
+  $('home').classList.add('hidden');
+  $('evolution').classList.remove('hidden');
+  $('evolutionText').textContent=cur.generatedText;
+  window.scrollTo(0,0);
+ }catch(err){
+  alert('Não foi possível confirmar o salvamento. A visita continua aberta: '+err.message);
+ }
+};
 window.backup=async()=>{
  try{capture();await enqueueSave();const payload={exported_at:new Date().toISOString(),patients:db.patients};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download='backup-uti-check-servidor-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(u);}catch(err){alert(err.message);}
 };
