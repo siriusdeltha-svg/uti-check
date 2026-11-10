@@ -1,0 +1,25 @@
+name: Validacao do UTI Check
+
+on:
+  pull_request:
+    branches: [integracao-backend-privado]
+  push:
+    branches: [feature/evolucao-provisoria]
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verificar sintaxe JavaScript
+        run: |
+          node --check app.js
+          node --check integration.js
+          node --check sw.js
+      - name: Verificacoes de integracao
+        run: python3 tests/smoke_test.py
