@@ -28,7 +28,7 @@ const showLogin=(msg='')=>{
 const hideLogin=()=>{$('utiLogin')?.classList.add('hidden');};
 const installLogout=()=>{
  let b=$('utiLogout');
- if(!b){b=document.createElement('button');b.id='utiLogout';b.className='btn secondary';b.type='button';b.textContent='Sair';b.style.cssText='position:absolute;right:14px;top:calc(14px + env(safe-area-inset-top, 0px))';document.querySelector('header')?.appendChild(b);}
+ if(!b){b=document.createElement('button');b.id='utiLogout';b.className='btn secondary';b.type='button';b.textContent='Sair';b.style.cssText='position:absolute;right:14px;top:max(68px, calc(14px + env(safe-area-inset-top, 0px)));z-index:20';document.querySelector('header')?.appendChild(b);}
  b.classList.remove('hidden');
  b.onclick=async()=>{try{await api('/auth/logout',{method:'POST',body:{}});}catch(e){console.warn(e);}csrf=null;user=null;showLogin('Sessão encerrada.');};
 };
