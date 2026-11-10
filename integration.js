@@ -145,7 +145,7 @@ window.startNewEvolution=async()=>{
  capture();
  cur.generatedText=buildEvolution();
  clearTimeout(window.__utiSaveTimer);
- await enqueueSave();
+  try{await enqueueSave();}catch(err){alert('Não foi possível confirmar o salvamento; o novo ciclo não será iniciado: '+err.message);return;}
  clearTimeout(window.__utiSaveTimer);
  if(!confirm('Arquivar a evolução atual e iniciar um novo ciclo de 24 horas?'))return;
  try{
