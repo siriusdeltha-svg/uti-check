@@ -216,8 +216,23 @@ const showDischargedHistory=async stay=>{
   printButton?.addEventListener('click',()=>{w.focus();w.print();});
  }catch(err){alert('Falha ao consultar histórico: '+err.message);}
 };
+const escapePdfHtml=value=>String(value).replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+window.printEvolutionPdf=()=>{
+ const text=$('evolutionText')?.textContent||'';
+ if(!text.trim()){alert('Não há evolução exibida para exportar.');return;}
+ const w=window.open('','_blank');
+ if(!w){alert('Permita a abertura de janelas para gerar o PDF.');return;}
+ const provisional=$('evolutionStatus')?.textContent==='PROVISÓRIA';
+ const title=provisional?'Evolução provisória — passagem de caso':'Evolução médica';
+ const warning=provisional?'<p class="notice">PROVISÓRIA — PARA PASSAGEM DE CASO — NÃO FINALIZADA</p>':'<p class="notice">RASCUNHO — revisar e validar antes de assinar.</p>';
+ w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escapePdfHtml(title)+'</title><style>*{box-sizing:border-box}body{font:14px/1.5 -apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#172536;margin:0;padding:24px}.toolbar{margin-bottom:18px}.toolbar button{border:0;border-radius:8px;padding:11px 16px;background:#1769aa;color:white;font-weight:700}.notice{font-weight:800;color:#8a3b00;border:1px solid #e5c58e;background:#fff7e8;padding:10px;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 -apple-system,BlinkMacSystemFont,Arial,sans-serif;margin:0}@page{size:auto;margin:14mm}@media print{body{padding:0}.toolbar{display:none}}</style></head><body><div class="toolbar"><button id="printPdf" type="button">Imprimir / Salvar como PDF</button></div>'+warning+'<pre id="evolutionBody"></pre></body></html>');
+ w.document.close();
+ w.document.getElementById('evolutionBody').textContent=text;
+ w.document.getElementById('printPdf').addEventListener('click',()=>{w.focus();w.print();});
+};
 document.addEventListener('click',e=>{
  const el=e.target.closest('[data-action]');if(!el)return;
+ if(el.dataset.action==='pdf-evolution')window.printEvolutionPdf();
  if(el.dataset.action==='open-archive')showArchive();
  if(el.dataset.action==='close-archive'){$('archive').classList.add('hidden');$('home').classList.remove('hidden');}
 });
