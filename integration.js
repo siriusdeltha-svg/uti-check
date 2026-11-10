@@ -143,15 +143,16 @@ window.startNewEvolution=async()=>{
  if(!cur)return;
  clearTimeout(window.__utiSaveTimer);
  capture();
- cur.generatedText=buildEvolution();
+ if(!cur.generatedTextEdited)cur.generatedText=buildEvolution();
  clearTimeout(window.__utiSaveTimer);
-  try{await enqueueSave();}catch(err){alert('Não foi possível confirmar o salvamento; o novo ciclo não será iniciado: '+err.message);return;}
- clearTimeout(window.__utiSaveTimer);
+ try{await enqueueSave();}catch(err){alert('Não foi possível confirmar o salvamento; o novo ciclo não será iniciado: '+err.message);return;}
+ const archivedText=cur.generatedText||buildEvolution();
+ const archivedEvolutionId=cur.evolutionId;
  if(!confirm('Arquivar a evolução atual e iniciar um novo ciclo de 24 horas?'))return;
  try{
-  await api('/evolutions/'+encodeURIComponent(cur.evolutionId)+'/archive',{method:'POST',body:{}});
+  await api('/evolutions/'+encodeURIComponent(archivedEvolutionId)+'/archive',{method:'POST',body:{}});
   const d=await api('/patients/'+encodeURIComponent(cur.id)+'/evolutions',{method:'POST',body:{content:{answers:{}}}});
-  cur.history.push({id:cur.evolutionId,archivedAt:d.evolution.started_at||new Date().toISOString(),label:'Evolução diária',text:buildEvolution()});
+  cur.history.push({id:archivedEvolutionId,archivedAt:new Date().toISOString(),label:'Evolução diária',text:archivedText});
   cur.answers={};cur.generatedText='';cur.generatedTextEdited=false;cur.evolutionId=d.evolution.id;cur.cycleId=d.evolution.id;cur.cycleStartedAt=d.evolution.started_at||d.evolution.created_at;
   active=0;renderTabs();renderStage();updateProgress();alert('Novo ciclo iniciado e registrado no servidor.');
  }catch(err){alert(err.message);}
