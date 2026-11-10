@@ -71,7 +71,7 @@ const enqueueSave=()=>{
  saveQueue=saveQueue.then(async()=>{
   await api('/patients/'+encodeURIComponent(snapshot.id),{method:'PATCH',body:{initials:String(snapshot.f.identifier||('LEITO-'+snapshot.bedNo)).slice(0,20),permanent_data:permanent(snapshot.f)}});
   await api('/evolutions/'+encodeURIComponent(snapshot.evolutionId),{method:'PATCH',body:{content:{answers:snapshot.answers,form:snapshot.f,generated_text:snapshot.generatedText,generated_text_edited:snapshot.generatedTextEdited}}});
- }).catch(err=>{console.error(err);alert('Não foi possível salvar no servidor: '+err.message);});
+ }).catch(err=>{window.__utiLastSaveError=err;console.error(err);alert('Não foi possível salvar no servidor: '+err.message);});
  return saveQueue;
 };
 window.persist=()=>{}; // bloqueia gravação clínica em localStorage
@@ -257,8 +257,10 @@ window.saveEvolutionEdit=async()=>{
  const previous=cur.generatedText;
  const wasProvisional=$('evolutionStatus').textContent==='PROVISÓRIA';
  cur.generatedText=text;cur.generatedTextEdited=true;
+ window.__utiLastSaveError=null;
  try{
   await enqueueSave();
+  if(window.__utiLastSaveError)throw window.__utiLastSaveError;
   $('evolutionText').textContent=text;
   $('evolutionStatus').textContent=wasProvisional?'PROVISÓRIA':'Editada';
   $('evolutionWarning').textContent='Texto editado manualmente. Revise cuidadosamente e confirme a fidelidade aos dados do prontuário antes de assinar.';
