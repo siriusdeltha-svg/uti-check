@@ -107,10 +107,26 @@ window.openPatient=id=>{
  document.querySelectorAll('[data-f]').forEach(el=>el.value=cur.f[el.dataset.f]??'');
  active=0;renderTabs();renderStage();updateProgress();$('patientTitle').textContent='Leito '+cur.bedNo;
 };
-window.showHistory=id=>{
+window.showHistory=async id=>{
  const p=db.patients.find(x=>x.id===id);if(!p)return;
- const w=window.open('','_blank');if(!w){alert('Permita a abertura da janela para visualizar o histórico.');return;}
- w.document.write('<meta name="viewport" content="width=device-width"><title>Histórico leito '+esc(p.bedNo)+'</title><style>body{font:15px Arial;padding:16px;white-space:pre-wrap}article{border-bottom:1px solid #ccc;padding:12px 0}</style><h2>Histórico — Leito '+esc(p.bedNo)+'</h2>'+(p.history.length?p.history.slice().reverse().map(x=>'<article><b>'+esc(new Date(x.archivedAt).toLocaleString('pt-BR'))+'</b><pre>'+esc(x.text)+'</pre></article>').join(''):'<p>Nenhuma evolução arquivada.</p>'));
+ let w=window.open('','_blank');
+ if(!w){alert('Permita a abertura de janelas para visualizar o histórico.');return;}
+ w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Histórico de evoluções</title></head><body style="font:15px Arial;padding:18px">Carregando todas as evoluções...</body></html>');
+ try{
+  const d=await api('/patients/'+encodeURIComponent(id)+'/evolutions');
+  const evs=(d.evolutions||[]).slice().sort((a,b)=>new Date(a.created_at||a.started_at||0)-new Date(b.created_at||b.started_at||0));
+  const escHtml=value=>String(value??'').replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+  const cards=evs.map((e,i)=>{
+   const stamp=e.created_at||e.started_at||e.archived_at;
+   const body=e.content?.generated_text||'Texto da evolução ainda não foi gerado.';
+   const status=e.archived_at?'Arquivada':(String(body).startsWith('EVOLUÇÃO PROVISÓRIA')?'Provisória':'Em andamento');
+   return '<article><header><b>EVOLUÇÃO '+String(i+1).padStart(2,'0')+'</b> · '+escHtml(stamp?new Date(stamp).toLocaleString('pt-BR'):'Data não informada')+' · '+status+'</header><pre>'+escHtml(body)+'</pre></article>';
+  }).join('');
+  w.document.open();
+  w.document.write('<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Histórico — Leito '+escHtml(p.bedNo)+'</title><style>*{box-sizing:border-box}body{font:14px/1.5 -apple-system,BlinkMacSystemFont,Arial,sans-serif;color:#172536;margin:0;padding:20px;background:#f3f6f9}.toolbar{position:sticky;top:0;background:#10283d;padding:12px;text-align:right}.toolbar button{border:0;border-radius:8px;padding:11px 16px;background:#e5eef7;color:#123b5e;font-weight:700}main{max-width:900px;margin:20px auto}h1{font-size:22px}article{background:#fff;border:1px solid #d9e2ec;border-radius:10px;padding:16px;margin:14px 0;break-inside:auto}article header{position:static;background:transparent;color:#425466;padding:0 0 10px;border-bottom:1px solid #e3eaf1;margin-bottom:10px;font-size:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 -apple-system,BlinkMacSystemFont,Arial,sans-serif;margin:0}.empty{background:white;padding:18px;border-radius:10px}@page{margin:14mm}@media print{body{background:white;padding:0}.toolbar{display:none}main{margin:0}article{box-shadow:none}}</style></head><body><div class="toolbar"><button id="printAll" type="button">Imprimir / Salvar todas em PDF</button></div><main><h1>Histórico de evoluções — Leito '+escHtml(p.bedNo)+' · '+escHtml(p.f.identifier||'Paciente')+'</h1><p>'+evs.length+' evolução(ões), da mais antiga para a mais recente.</p>'+(cards||'<p class="empty">Nenhuma evolução registrada.</p>')+'</main></body></html>');
+  w.document.close();
+  w.document.getElementById('printAll')?.addEventListener('click',()=>{w.focus();w.print();});
+ }catch(err){w.document.body.textContent='Não foi possível carregar o histórico: '+err.message;}
 };
 window.closeStay=async id=>{
  const p=db.patients.find(x=>x.id===id);if(!p||!confirm('Registrar alta hospitalar e liberar este leito?'))return;
