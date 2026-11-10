@@ -262,6 +262,7 @@ window.saveEvolutionEdit=async()=>{
  const text=$('evolutionEditor').value.trim();
  if(!text){alert('A evolução não pode ficar vazia.');return;}
  const previous=cur.generatedText;
+ const previousEdited=cur.generatedTextEdited===true;
  const wasProvisional=$('evolutionStatus').textContent==='PROVISÓRIA';
  cur.generatedText=text;cur.generatedTextEdited=true;
  window.__utiLastSaveError=null;
@@ -273,7 +274,7 @@ window.saveEvolutionEdit=async()=>{
   $('evolutionWarning').textContent='Texto editado manualmente. Revise cuidadosamente e confirme a fidelidade aos dados do prontuário antes de assinar.';
   window.cancelEvolutionEdit();
   alert('Edição registrada nesta evolução.');
- }catch(err){cur.generatedText=previous;alert('Não foi possível salvar a edição: '+err.message);}
+ }catch(err){cur.generatedText=previous;cur.generatedTextEdited=previousEdited;alert('Não foi possível salvar a edição: '+err.message);}
 };
 
 window.printEvolutionPdf=()=>{
