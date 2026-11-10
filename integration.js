@@ -145,7 +145,8 @@ window.backup=async()=>{
  try{capture();await enqueueSave();const payload={exported_at:new Date().toISOString(),patients:db.patients};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download='backup-uti-check-servidor-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(u);}catch(err){alert(err.message);}
 };
 const originalHome=window.home;
-window.home=async()=>{if(cur){capture();await enqueueSave();} $('editor').classList.add('hidden');$('evolution').classList.add('hidden');$('home').classList.remove('hidden');await loadBeds();};
+window.home=async()=>{if(cur){clearTimeout(window.__utiSaveTimer);capture();await enqueueSave();} $('editor').classList.add('hidden');$('evolution').classList.add('hidden');$('archive')?.classList.add('hidden');$('home').classList.remove('hidden');await loadBeds();window.scrollTo(0,0);};
+window.backEditor=async()=>{if(!cur)return;clearTimeout(window.__utiSaveTimer);capture();await enqueueSave();$('evolution').classList.add('hidden');$('home').classList.add('hidden');$('archive')?.classList.add('hidden');$('editor').classList.remove('hidden');window.scrollTo(0,0);};
 const showArchive=async()=>{
  try{
   $('home').classList.add('hidden');$('editor').classList.add('hidden');$('evolution').classList.add('hidden');$('archive').classList.remove('hidden');
@@ -218,7 +219,7 @@ const showDischargedHistory=async stay=>{
 document.addEventListener('click',e=>{
  const el=e.target.closest('[data-action]');if(!el)return;
  if(el.dataset.action==='open-archive')showArchive();
- if(el.dataset.action==='close-archive'){$('archive').classList.add('hidden');$('home').classList.remove('hidden');}
+ if(el.dataset.action==='close-archive'){window.home();}
 });
 document.addEventListener('submit',async e=>{
  if(e.target.id!=='utiLoginForm')return;e.preventDefault();
