@@ -51,7 +51,7 @@ const loadBeds=async()=>{
   const content=activeEvolution.content||{};
   const f=formFrom(b);
   const history=all.filter(e=>e.archived_at).map(e=>({id:e.id,archivedAt:e.archived_at,label:'Evolução arquivada',text:e.content?.generated_text||'(Evolução preservada no banco; texto não disponível nesta versão)',form:e.content?.form||{},answers:e.content?.answers||{}}));
-  patients.push({id:b.stay_id,bedNo:String(b.bed_no).padStart(2,'0'),f,answers:content.answers||{},history,cycleStartedAt:activeEvolution.started_at||activeEvolution.created_at,cycleId:activeEvolution.id,archivedCycleId:null,evolutionId:activeEvolution.id});
+  patients.push({id:b.stay_id,bedNo:String(b.bed_no).padStart(2,'0'),f,answers:content.answers||{},generatedText:content.generated_text||'',generatedTextEdited:content.generated_text_edited===true,history,cycleStartedAt:activeEvolution.started_at||activeEvolution.created_at,cycleId:activeEvolution.id,archivedCycleId:null,evolutionId:activeEvolution.id});
  }
  db={patients};
  renderHome();
@@ -67,10 +67,10 @@ const capture=()=>{
 };
 const enqueueSave=()=>{
  if(!cur||!cur.evolutionId)return;
- const snapshot={id:cur.id,evolutionId:cur.evolutionId,bedNo:cur.bedNo,f:{...cur.f},answers:JSON.parse(JSON.stringify(cur.answers||{})),generatedText:cur.generatedText||''};
+ const snapshot={id:cur.id,evolutionId:cur.evolutionId,bedNo:cur.bedNo,f:{...cur.f},answers:JSON.parse(JSON.stringify(cur.answers||{})),generatedText:cur.generatedText||'',generatedTextEdited:cur.generatedTextEdited===true};
  saveQueue=saveQueue.then(async()=>{
   await api('/patients/'+encodeURIComponent(snapshot.id),{method:'PATCH',body:{initials:String(snapshot.f.identifier||('LEITO-'+snapshot.bedNo)).slice(0,20),permanent_data:permanent(snapshot.f)}});
-  await api('/evolutions/'+encodeURIComponent(snapshot.evolutionId),{method:'PATCH',body:{content:{answers:snapshot.answers,form:snapshot.f,generated_text:snapshot.generatedText}}});
+  await api('/evolutions/'+encodeURIComponent(snapshot.evolutionId),{method:'PATCH',body:{content:{answers:snapshot.answers,form:snapshot.f,generated_text:snapshot.generatedText,generated_text_edited:snapshot.generatedTextEdited}}});
  }).catch(err=>{console.error(err);alert('Não foi possível salvar no servidor: '+err.message);});
  return saveQueue;
 };
@@ -146,18 +146,18 @@ window.startNewEvolution=async()=>{
   await api('/evolutions/'+encodeURIComponent(cur.evolutionId)+'/archive',{method:'POST',body:{}});
   const d=await api('/patients/'+encodeURIComponent(cur.id)+'/evolutions',{method:'POST',body:{content:{answers:{}}}});
   cur.history.push({id:cur.evolutionId,archivedAt:d.evolution.started_at||new Date().toISOString(),label:'Evolução diária',text:buildEvolution()});
-  cur.answers={};cur.evolutionId=d.evolution.id;cur.cycleId=d.evolution.id;cur.cycleStartedAt=d.evolution.started_at||d.evolution.created_at;
+  cur.answers={};cur.generatedText='';cur.generatedTextEdited=false;cur.evolutionId=d.evolution.id;cur.cycleId=d.evolution.id;cur.cycleStartedAt=d.evolution.started_at||d.evolution.created_at;
   active=0;renderTabs();renderStage();updateProgress();alert('Novo ciclo iniciado e registrado no servidor.');
  }catch(err){alert(err.message);}
 };
 window.archiveEvolution=async()=>{
- if(!cur)return;capture();cur.generatedText=buildEvolution();await enqueueSave();
+ if(!cur)return;capture();if(!cur.generatedTextEdited)cur.generatedText=buildEvolution();await enqueueSave();
  if(!confirm('Arquivar esta evolução no histórico do servidor?'))return;
  try{await api('/evolutions/'+encodeURIComponent(cur.evolutionId)+'/archive',{method:'POST',body:{}});alert('Evolução arquivada no PostgreSQL.');await loadBeds();home();}
  catch(err){alert(err.message);}
 };
-window.showEvolution=()=>{capture();cur.generatedText=buildEvolution();enqueueSave();$('evolutionStatus').textContent='Rascunho';$('evolutionWarning').textContent='Revise todos os campos, corrija omissões e valide os dados no prontuário antes de assinar. O texto não representa decisão clínica automatizada.';$('archiveEvolutionBtn').classList.remove('hidden');$('editor').classList.add('hidden');$('home').classList.add('hidden');$('evolution').classList.remove('hidden');$('evolutionText').textContent=buildEvolution();window.scrollTo(0,0);};
-window.showProvisionalEvolution=async()=>{if(!cur)return;clearTimeout(window.__utiSaveTimer);capture();const body=buildEvolution();clearTimeout(window.__utiSaveTimer);cur.generatedText='EVOLUÇÃO PROVISÓRIA — PARA PASSAGEM DE CASO — NÃO FINALIZADA\n\n'+body;await enqueueSave();$('evolutionStatus').textContent='PROVISÓRIA';$('evolutionWarning').textContent='Documento provisório para passagem de caso. A visita permanece aberta; esta visualização não conclui, não arquiva e não substitui a evolução médica final. Confira os dados e complete a visita depois.';$('archiveEvolutionBtn').classList.add('hidden');$('editor').classList.add('hidden');$('home').classList.add('hidden');$('evolution').classList.remove('hidden');$('evolutionText').textContent=cur.generatedText;window.scrollTo(0,0);};
+window.showEvolution=()=>{capture();if(!cur.generatedTextEdited)cur.generatedText=buildEvolution();enqueueSave();$('evolutionStatus').textContent=cur.generatedTextEdited?'Editada':'Rascunho';$('evolutionWarning').textContent='Revise todos os campos, corrija omissões e valide os dados no prontuário antes de assinar. O texto não representa decisão clínica automatizada.';$('archiveEvolutionBtn').classList.remove('hidden');$('editor').classList.add('hidden');$('home').classList.add('hidden');$('evolution').classList.remove('hidden');$('evolutionText').textContent=cur.generatedText||buildEvolution();window.scrollTo(0,0);};
+window.showProvisionalEvolution=async()=>{if(!cur)return;clearTimeout(window.__utiSaveTimer);capture();const body=buildEvolution();clearTimeout(window.__utiSaveTimer);cur.generatedText='EVOLUÇÃO PROVISÓRIA — PARA PASSAGEM DE CASO — NÃO FINALIZADA\n\n'+body;cur.generatedTextEdited=false;await enqueueSave();$('evolutionStatus').textContent='PROVISÓRIA';$('evolutionWarning').textContent='Documento provisório para passagem de caso. A visita permanece aberta; esta visualização não conclui, não arquiva e não substitui a evolução médica final. Confira os dados e complete a visita depois.';$('archiveEvolutionBtn').classList.add('hidden');$('editor').classList.add('hidden');$('home').classList.add('hidden');$('evolution').classList.remove('hidden');$('evolutionText').textContent=cur.generatedText;window.scrollTo(0,0);};
 window.backup=async()=>{
  try{capture();await enqueueSave();const payload={exported_at:new Date().toISOString(),patients:db.patients};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download='backup-uti-check-servidor-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(u);}catch(err){alert(err.message);}
 };
@@ -233,6 +233,39 @@ const showDischargedHistory=async stay=>{
  }catch(err){alert('Falha ao consultar histórico: '+err.message);}
 };
 const escapePdfHtml=value=>String(value).replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));
+
+window.beginEvolutionEdit=()=>{
+ const text=$('evolutionText')?.textContent||'';
+ if(!text.trim()){alert('Não há evolução para editar.');return;}
+ $('evolutionEditor').value=text;
+ $('evolutionText').classList.add('hidden');
+ $('evolutionEditor').classList.remove('hidden');
+ ['archiveEvolutionBtn','copyEvolutionBtn','downloadEvolutionBtn','pdfEvolutionBtn','editEvolutionBtn'].forEach(id=>$(id)?.classList.add('hidden'));
+ $('saveEvolutionEditBtn').classList.remove('hidden');$('cancelEvolutionEditBtn').classList.remove('hidden');
+ $('evolutionEditor').focus();
+};
+window.cancelEvolutionEdit=()=>{
+ $('evolutionEditor').classList.add('hidden');$('evolutionText').classList.remove('hidden');
+ ['copyEvolutionBtn','downloadEvolutionBtn','pdfEvolutionBtn','editEvolutionBtn'].forEach(id=>$(id)?.classList.remove('hidden'));
+ if($('evolutionStatus').textContent!=='PROVISÓRIA')$('archiveEvolutionBtn').classList.remove('hidden');
+ $('saveEvolutionEditBtn').classList.add('hidden');$('cancelEvolutionEditBtn').classList.add('hidden');
+};
+window.saveEvolutionEdit=async()=>{
+ if(!cur)return;
+ const text=$('evolutionEditor').value.trim();
+ if(!text){alert('A evolução não pode ficar vazia.');return;}
+ const previous=cur.generatedText;
+ cur.generatedText=text;cur.generatedTextEdited=true;
+ try{
+  await enqueueSave();
+  $('evolutionText').textContent=text;
+  $('evolutionStatus').textContent='Editada';
+  $('evolutionWarning').textContent='Texto editado manualmente. Revise cuidadosamente e confirme a fidelidade aos dados do prontuário antes de assinar.';
+  window.cancelEvolutionEdit();
+  alert('Edição registrada nesta evolução.');
+ }catch(err){cur.generatedText=previous;alert('Não foi possível salvar a edição: '+err.message);}
+};
+
 window.printEvolutionPdf=()=>{
  const text=$('evolutionText')?.textContent||'';
  if(!text.trim()){alert('Não há evolução exibida para exportar.');return;}
@@ -248,7 +281,10 @@ window.printEvolutionPdf=()=>{
 };
 document.addEventListener('click',e=>{
  const el=e.target.closest('[data-action]');if(!el)return;
- if(el.dataset.action==='pdf-evolution')window.printEvolutionPdf();
+ if(el.dataset.action==='edit-evolution')window.beginEvolutionEdit();
+  if(el.dataset.action==='save-evolution-edit')window.saveEvolutionEdit();
+  if(el.dataset.action==='cancel-evolution-edit')window.cancelEvolutionEdit();
+  if(el.dataset.action==='pdf-evolution')window.printEvolutionPdf();
  if(el.dataset.action==='open-archive')showArchive();
  if(el.dataset.action==='close-archive'){$('archive').classList.add('hidden');$('home').classList.remove('hidden');}
 });
